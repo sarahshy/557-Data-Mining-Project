@@ -74,8 +74,14 @@ sim_results <- run_simulations(data, 500)
 # simulate measurement error on top of a given noisy observation
 sim_results_noisy <- run_simulations(noisy, 500)
 
+# simulate measurement error with double sigma
+sigma_noise <- 2 * sigma_noise
+sim_results_double <- run_simulations(data, 500)
+sigma_noise <- .5 * sigma_noise # i never mutated that.
+
 sim_results_combined <- bind_rows(
   sim_results %>% add_column(noise = "on true data"),
+  sim_results_double %>% add_column(noise = "on true data (2*sigma)"),
   sim_results_noisy %>% add_column(noise = "on noisy observation")
 )
 
