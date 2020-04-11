@@ -7,12 +7,12 @@ n <- 500
 train <- sample(1:n, round(.8*n))
 test <- setdiff(1:n, train)
 
-mean_1 <- c(5, 5)
+mean_1 <- c(2, 5)
 sigma_1 <- matrix(c(8, 4, 4, 12), nrow = 2)
-mean_2 <- c(15, 0)
+mean_2 <- c(10, 0)
 sigma_2 <- matrix(c(10, 3, 3, 4), nrow = 2)
 
-sigma_noise <- 50 * matrix(c(1, .5, .5, 2), nrow = 2)
+sigma_noise <- 10 * matrix(c(1, -.5, -.5, 2), nrow = 2)
 
 
 make_base_data <- function() {
@@ -86,3 +86,6 @@ sim_results_combined <- bind_rows(
 )
 
 ggplot(sim_results_combined) + geom_boxplot(aes(x = noise, y = accuracy))
+var(sim_results$accuracy)
+var(sim_results_noisy$accuracy)
+
