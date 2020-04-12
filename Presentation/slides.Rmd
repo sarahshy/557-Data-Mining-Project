@@ -1,0 +1,104 @@
+---
+title: "Classification with Measurement Error"
+author: "Sarah Shy, Jonathan Hehir"
+date: "April 21, 2020"
+bibliography: sources.bib
+csl: american-statistical-association.csl
+output: beamer_presentation
+
+# For fancy beamer theme, we can use this instead of the `output` line above.
+# But it requires having the theme installed,
+# and I fear we could have cross-platform issues with LaTeX rendering.
+# Skipping for now, but we can play with it.
+#
+# output:
+#  beamer_presentation:
+#    theme: metropolis
+#    latex_engine: xelatex
+---
+
+```{r include=FALSE}
+library(tidyverse)
+library(mvtnorm)
+set.seed(557)
+```
+
+(this slide is blank)
+
+# Introduction
+
+## What is measurement error?
+
+In many statistical scenarios, we assume that our variables are exact measurements from some sample.
+
+. . .
+
+This is often **false**.
+
+(An example citation: @example2014.)
+
+## Example: A Clean Sample
+
+This is an example of a nice sample.
+
+```{r echo=F, warning=F}
+toy <- new.env()
+attach(toy)
+source("../Toys/svm_measurement_error_toy.R")
+
+data <- make_base_data()
+plot_data(data)
+```
+
+---
+
+## Example: Noisy Sample
+
+This is the exact same sample, but with some error added to each point.
+
+```{r echo=F}
+noisy <- noisify_data(data)
+plot_data_with_error(noisy)
+```
+
+## What happens now?
+
+blah blah
+
+
+<!--
+data <- make_base_data()
+plot_data(data)
+
+noisy <- noisify_data(data)
+plot_data(noisy)
+
+svm_metrics(data)
+svm_metrics(noisy)
+
+# simulate actual measurement error
+sim_results <- run_simulations(data, 500)
+
+# simulate measurement error on top of a given noisy observation
+sim_results_noisy <- run_simulations(noisy, 500)
+
+# simulate measurement error with double noise
+sim_results_double <- run_simulations(data, 500, 2)
+
+sim_results_combined <- bind_rows(
+  sim_results %>% add_column(noise = "on true data"),
+  sim_results_double %>% add_column(noise = "on true data twice"),
+  sim_results_noisy %>% add_column(noise = "on noisy observation")
+)
+
+ggplot(sim_results_combined) + geom_boxplot(aes(x = noise, y = accuracy))
+var(sim_results$accuracy)
+var(sim_results_noisy$accuracy)
+
+
+-->
+
+# The End
+
+## Bibliography
+
