@@ -8,6 +8,10 @@
 ################################################
 
 library(data.table)
+library(dplyr)
+library(randomForest)
+library(parallel)
+library(tidyselect)
 
 train.set1 <- fread("Data/train_set1.csv")
 train.set2 <- fread("Data/train_set2.csv")
