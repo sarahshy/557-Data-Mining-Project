@@ -1,0 +1,8 @@
+---
+title: "(temp title) Data Mining Presentation Slides"
+author: "Sarah Shy, Jonathan Hehir"
+date: "4/12/2020"
+output: beamer_presentation
+---
+
+# Intro
