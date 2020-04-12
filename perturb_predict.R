@@ -25,6 +25,17 @@ print("finished loading")
 # Useful functions
 ################################################
 
+# create colors from magnitude columns
+create.colors <- function(dat){ # takes full clean set with adjusted mags
+  dr12.recode <- dat %>%
+    mutate(u_g = u_adj - g_adj,
+           g_r = g_adj - r_adj,
+           r_i = r_adj - i_adj,
+           i_z = i_adj - z_adj)
+  
+  return(dr12.recode) # returns colors only
+}
+
 ##### The lines below create one full perturbed set
 # can alternatively (and more concisely) just sum measurement errors,
 # but this way we can keep the perturbed magnitudes
@@ -54,7 +65,7 @@ create.perturbed.dat <- function(mags.df, errors.df){
 
 
 # run parallel prediction
-n.sets <- 500
+n.sets <- 2
 start <- Sys.time()
 rf.pert.preds <- mclapply(1:n.sets, FUN = function(set.idx){
   # create perturbed sets
