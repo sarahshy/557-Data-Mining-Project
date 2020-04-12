@@ -44,5 +44,45 @@ create.perturbed.dat <- function(mags.df, errors.df){
 }
 
 
+################################################
+# Parallelized Pipeline
+################################################
 
+
+# run parallel prediction
+n.sets <- 500
+start <- Sys.time()
+rf.pert.preds <- mclapply(1:n.sets, FUN = function(set.idx){
+  # create perturbed sets
+  pert.train <- create.perturbed.dat(train.mags, train.errors)
+  pert.test <- create.perturbed.dat(test.mags, test.errors)
+  
+  # create colors
+  pert.train <- create.colors(pert.train) # add color columns
+  pert.test <- create.colors(pert.test)
+  
+  # attach class column
+  pert.train$class <- train.set$class
+  
+  # run rf
+  rf.fit <- randomForest(class ~ u_g + g_r + r_i + i_z, data = pert.train, ntree = 100)
+  
+  # rf predictions
+  predict(rf.fit, pert.test, type = "response")
+}, mc.cores = 20)
+Sys.time() - start # print time elapsed
+
+print("ran parallel prediction")
+
+# convert list to df of predictions
+rf.preds <- rf.pert.preds %>% unlist %>% matrix(ncol = n.sets) %>% as.data.frame
+
+################################################
+# Save predictions
+################################################
+
+# save predictions to csv
+write.csv(rf.preds, "Data/preds_500.csv", row.names = F)
+
+print("wrote preds to csv")
 
