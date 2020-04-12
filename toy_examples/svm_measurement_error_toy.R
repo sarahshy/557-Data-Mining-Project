@@ -7,12 +7,12 @@ n <- 500
 train <- sample(1:n, round(.8*n))
 test <- setdiff(1:n, train)
 
-mean_1 <- c(5, 5)
+mean_1 <- c(2, 5)
 sigma_1 <- matrix(c(8, 4, 4, 12), nrow = 2)
-mean_2 <- c(15, 0)
+mean_2 <- c(10, 0)
 sigma_2 <- matrix(c(10, 3, 3, 4), nrow = 2)
 
-sigma_noise <- 50 * matrix(c(1, .5, .5, 2), nrow = 2)
+sigma_noise <- 10 * matrix(c(1, -.5, -.5, 2), nrow = 2)
 
 
 make_base_data <- function() {
@@ -25,11 +25,13 @@ make_base_data <- function() {
   as_tibble(data) %>% mutate(label = as.factor(label))
 }
 
-noisify_data <- function(sigma) {
+noisify_data <- function(data, noise_rounds = 1) {
   # uses global data
-  noise <- rmvnorm(nrow(data), c(0, 0), sigma_noise)
   data_noisy <- data
-  data_noisy[,c("x", "y")] <- data_noisy[,c("x", "y")] + noise
+  for(i in 1:noise_rounds) {
+    noise <- rmvnorm(nrow(data), c(0, 0), sigma_noise)
+    data_noisy[,c("x", "y")] <- data_noisy[,c("x", "y")] + noise
+  }
   data_noisy
 }
 
@@ -59,10 +61,10 @@ plot_data(noisy)
 svm_metrics(data)
 svm_metrics(noisy)
 
-run_simulations <- function(base_data, m) {
+run_simulations <- function(base_data, m, noise_rounds = 1) {
   metrics <- NULL
   for(i in 1:m) {
-    obs <- noisify_data(base_data)
+    obs <- noisify_data(base_data, noise_rounds)
     metrics <- bind_rows(metrics, svm_metrics(obs))
   }
   metrics
@@ -74,15 +76,16 @@ sim_results <- run_simulations(data, 500)
 # simulate measurement error on top of a given noisy observation
 sim_results_noisy <- run_simulations(noisy, 500)
 
-# simulate measurement error with double sigma
-sigma_noise <- 2 * sigma_noise
-sim_results_double <- run_simulations(data, 500)
-sigma_noise <- .5 * sigma_noise # i never mutated that.
+# simulate measurement error with double noise
+sim_results_double <- run_simulations(data, 500, 2)
 
 sim_results_combined <- bind_rows(
   sim_results %>% add_column(noise = "on true data"),
-  sim_results_double %>% add_column(noise = "on true data (2*sigma)"),
+  sim_results_double %>% add_column(noise = "on true data twice"),
   sim_results_noisy %>% add_column(noise = "on noisy observation")
 )
 
 ggplot(sim_results_combined) + geom_boxplot(aes(x = noise, y = accuracy))
+var(sim_results$accuracy)
+var(sim_results_noisy$accuracy)
+
