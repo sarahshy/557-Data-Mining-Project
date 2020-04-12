@@ -15,9 +15,14 @@ library(tidyselect)
 
 train.set1 <- fread("Data/train_set1.csv")
 train.set2 <- fread("Data/train_set2.csv")
+test.set <- fread("Data/test_set.csv")
+
+# combine training sets
 train.set <- rbind(train.set1, train.set2)
 
-test.set <- fread("Data/test_set.csv")
+# convert class to factor
+train.set$class <- as.factor(train.set$class)
+test.set$class <- as.factor(test.set$class)
 
 print("finished loading")
 
@@ -65,7 +70,7 @@ create.perturbed.dat <- function(mags.df, errors.df){
 
 
 # run parallel prediction
-n.sets <- 2
+n.sets <- 500
 start <- Sys.time()
 rf.pert.preds <- mclapply(1:n.sets, FUN = function(set.idx){
   # create perturbed sets
