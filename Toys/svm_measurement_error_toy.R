@@ -2,7 +2,6 @@ library(mvtnorm)
 library(e1071)
 library(tidyverse)
 
-set.seed(557)
 n <- 500
 train <- sample(1:n, round(.8*n))
 test <- setdiff(1:n, train)
@@ -25,7 +24,8 @@ make_base_data <- function() {
 }
 
 noisify_data <- function(data, noise_rounds = 1) {
-  # uses global data
+  if (noise_rounds < 1) return(data) # no noise needed!
+  
   data_noisy <- data
   for(i in 1:noise_rounds) {
     noise <- rmvnorm(nrow(data), c(0, 0), sigma_noise)
@@ -67,10 +67,15 @@ svm_metrics <- function(data) {
   )
 }
 
-run_simulations <- function(base_data, m, noise_rounds = 1) {
+run_simulations <- function(base_data, m, noise_rounds) {
   metrics <- NULL
   for(i in 1:m) {
-    obs <- noisify_data(base_data, noise_rounds)
+    if(is.function(base_data)) {
+      data <- base_data()
+    } else {
+      data <- base_data
+    }
+    obs <- noisify_data(data, noise_rounds)
     metrics <- bind_rows(metrics, svm_metrics(obs))
   }
   metrics
