@@ -47,16 +47,28 @@ In especially nice cases, we know **how inaccurate** they are.
 
 Situations where we know our measurement error include:
 
-- Astronomy data
-  - DETAILS NEEDED HERE
+- Astronomy data (we'll come back to this)
 - Privacy applications
-  - Intentionally adding noise to observations is a common method for achieving privacy. Here we know the exact distribution of the real data.
+  - Intentionally adding noise to observations is a common method for achieving privacy. We choose the amount of noise to add.
 - Earthquake data?
   - Would need to ask our friend Ian Lee about this.
+- Many instruments used for measurement.
 
 ## Example: A Clean Sample
 
-This is an example of a particularly nice sample.
+Easily separable classes. No measurement error.
+
+- 500 observation
+- 2 classes:
+$X_1, \dots, X_250 \sim N(\mu_1, \Sigma_1)$
+$X_251, \dots, X_500 \sim N(\mu_2, \Sigma_2)$
+$\epsilon \sim N(\mathbf0, 1 0 0 3$
+
+x | y | errX | errY
+---- | ---- | ---- | ----
+34.4 | 12 | 1 | 2
+34.4 | 12 | 1 | 2
+
 
 ```{r echo=F, warning=F}
 toy <- new.env()
@@ -123,11 +135,15 @@ detach(toy)
 ## What do we want?
 
 - Want a method for estimating uncertainty in classification performance that can be used for any classifier.
-- etc.
+In our project:
+- We use Gaussian perturbation based on known measurement error
+- As a bonus:
+  - quantify class stability
+  - probabilities for each observation (think, soft classifier via ensemble learning)
 
 ## How do we do it?
 
-Insert pipeline here.
+Insert pipeline here. Sarah's job. Parallel is good.
 
 # Real Data
 
@@ -150,6 +166,8 @@ But I bet they wish they did.
 ## Results
 
 In our testing, our method performs amazingly. It is so good.
+Show confidence intervals
+Show probabiities? i.e. if all perturbed sets predict obs 1 to be class 1, prob = 1
 
 <!--
 var(sim_results$accuracy)
@@ -157,6 +175,11 @@ var(sim_results_noisy$accuracy)
 
 
 -->
+
+## Future directions + related work
+- Gaussian perturbation in clustering setting (mostly used for cluster stability)
+  - Note (remove text) In literature, usually choose a fixed variance. Here, use known measurement error so that our measure of cluster stability is essentially a function of the known measurement error
+- tbd
 
 # The End
 
