@@ -1,0 +1,161 @@
+---
+title: "Classification with Measurement Error"
+author: "Sarah Shy, Jonathan Hehir"
+date: "April 21, 2020"
+bibliography: sources.bib
+csl: american-statistical-association.csl
+output: beamer_presentation
+
+# For fancy beamer theme, we can use this instead of the `output` line above.
+# But it requires having the theme installed,
+# and I fear we could have cross-platform issues with LaTeX rendering.
+# Skipping for now, but we can play with it.
+#
+# output:
+#  beamer_presentation:
+#    theme: metropolis
+#    latex_engine: xelatex
+---
+
+```{r include=FALSE}
+library(tidyverse)
+library(mvtnorm)
+set.seed(557421)
+```
+
+(this slide is blank)
+
+# Introduction
+
+## What is measurement error?
+
+In many statistical scenarios, we assume that our variables are perfect measurements from some sample.
+
+. . .
+
+This is often **false**. In many cases, we know our measurements are inaccurate.
+
+. . .
+
+In especially nice cases, we know **how inaccurate** they are.
+
+## Applications of Measurement Error
+
+Situations where we know our measurement error include:
+
+- Astronomy data
+  - DETAILS NEEDED HERE
+- Privacy applications
+  - Intentionally adding noise to observations is a common method for achieving privacy. Here we know the exact distribution of the real data.
+- Earthquake data?
+  - Would need to ask our friend Ian Lee about this.
+
+## Example: A Clean Sample
+
+This is an example of a particularly nice sample.
+
+```{r echo=F, warning=F}
+toy <- new.env()
+source("../Toys/svm_measurement_error_toy.R", toy)
+attach(toy)
+
+data <- make_base_data()
+plot_data(data)
+```
+
+---
+
+## Example: Noisy Sample
+
+This is the exact same sample, but with some error added to each point.
+
+```{r echo=F}
+noisy <- noisify_data(data)
+plot_data_with_error(noisy)
+```
+
+## Example classifier performance
+
+Fitting a basic linear SVM to the above yields the following accuracies:
+
+```{r include=F}
+d_acc <- 100*svm_metrics(data)$accuracy
+n_acc <- 100*svm_metrics(noisy)$accuracy
+```
+
+Original Sample | Noisy Sample
+----------------|----------------
+`r sprintf("%0.1f", d_acc)`% | `r sprintf("%0.1f", n_acc)`%
+
+. . .
+
+**Can we trust this accuracy estimate?**
+
+## Simulating Measurement Error
+
+Using that same original sample, we repeat this process 500 times to obtain the following distribution of classifier accuracy:
+
+```{r cache=T, echo=F}
+# simulate measurement error on one clean observation
+sim_results_me <- run_simulations(data, 500, 1)
+
+#ggplot(sim_results_me) + geom_boxplot(aes(y = accuracy)) +
+#  scale_y_continuous(labels = scales::percent) +
+#  ylab("Accuracy")
+
+ggplot(sim_results_me) + geom_histogram(aes(x = accuracy), binwidth = 0.01, alpha = 0.5, color = "#000000") +
+  xlab("Accuracy") +
+  ylab("Frequency")
+
+detach(toy)
+```
+
+---
+
+\LARGE Can we estimate that distribution without access to the clean sample?
+
+# Ideas
+
+## What do we want?
+
+- Want a method for estimating uncertainty in classification performance that can be used for any classifier.
+- etc.
+
+## How do we do it?
+
+Insert pipeline here.
+
+# Real Data
+
+## Astronomy
+
+Here's some data from astronomers [@example2014].
+
+. . .
+
+There are literally rocket scientists.
+
+. . .
+
+Just kidding. They don't have rockets.
+
+. . .
+
+But I bet they wish they did.
+
+## Results
+
+In our testing, our method performs amazingly. It is so good.
+
+<!--
+var(sim_results$accuracy)
+var(sim_results_noisy$accuracy)
+
+
+-->
+
+# The End
+
+## Bibliography
+
+\fontsize{7}{7}\selectfont

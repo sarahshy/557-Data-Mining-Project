@@ -27,3 +27,8 @@ vignettes/*.pdf
 # R Environment Variables
 .Renviron
 557-Data-Mining-Project.Rproj
+
+
+# compiled Presentation assets
+Presentation/slides.pdf
+Presentation/slides_files/**
