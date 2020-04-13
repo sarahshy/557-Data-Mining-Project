@@ -6,10 +6,10 @@ n <- 500
 train <- sample(1:n, round(.8*n))
 test <- setdiff(1:n, train)
 
-mean_1 <- c(2, 5)
-sigma_1 <- matrix(c(.8, -.4, -.4, 1.2), nrow = 2)
-mean_2 <- c(1, 0)
-sigma_2 <- matrix(c(1, .3, .3, .4), nrow = 2)
+mean_1 <- c(1, 3)
+sigma_1 <- matrix(c(3, -.4, -.4, 2), nrow = 2)
+mean_2 <- c(-1, -2)
+sigma_2 <- matrix(c(2, .3, .3, .7), nrow = 2)
 
 sigma_noise <- matrix(c(1, 0, 0, 3), nrow = 2)
 
@@ -36,7 +36,9 @@ noisify_data <- function(data, noise_rounds = 1) {
 
 plot_data <- function(data) {
   ggplot(data) +
-    geom_point(aes(x = x, y = y, color = label, shape = label))
+    geom_point(aes(x = x, y = y, color = label, shape = label)) +
+    xlim(-10, 10) +
+    ylim(-10, 10)
 }
 
 # blah, blah, DRY...
@@ -52,7 +54,9 @@ plot_data_with_error <- function(data) {
                        xmax = x + sigma_noise[1,1]/2,
                        color = label),
                    alpha = 0.2) +
-    geom_point(aes(x = x, y = y, color = label, shape = label))
+    geom_point(aes(x = x, y = y, color = label, shape = label)) +
+    xlim(-10, 10) +
+    ylim(-10, 10)
 }
 
 svm_metrics <- function(data) {

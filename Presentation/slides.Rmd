@@ -54,7 +54,7 @@ Situations where we know our measurement error include:
 - Earthquake data?
   - Would need to ask our friend Ian Lee about this.
 
-## Example: A Clean Sample
+## Toy Example: A Clean Sample
 
 This is an example of a particularly nice sample.
 
@@ -67,18 +67,26 @@ data <- make_base_data()
 plot_data(data)
 ```
 
+## Toy Example: A Clean Sample
+
+Let's perturb this data using the following measurement error distribution:
+
+```{r echo=F, warning=F}
+plot_data_with_error(data)
+```
+
 ---
 
-## Example: Noisy Sample
+## Toy Example: Noisy Sample
 
-This is the exact same sample, but with some error added to each point.
+Now we have this mess:
 
 ```{r echo=F}
 noisy <- noisify_data(data)
-plot_data_with_error(noisy)
+plot_data(noisy)
 ```
 
-## Example classifier performance
+## Toy Example: Classifier Performance
 
 Fitting a basic linear SVM to the above yields the following accuracies:
 
@@ -87,15 +95,15 @@ d_acc <- 100*svm_metrics(data)$accuracy
 n_acc <- 100*svm_metrics(noisy)$accuracy
 ```
 
-Original Sample | Noisy Sample
-----------------|----------------
+Clean Sample | Noisy Sample
+-------------|----------------
 `r sprintf("%0.1f", d_acc)`% | `r sprintf("%0.1f", n_acc)`%
 
 . . .
 
 **Can we trust this accuracy estimate?**
 
-## Simulating Measurement Error
+## Toy Example: Simulating Measurement Error
 
 Using that same original sample, we repeat this process 500 times to obtain the following distribution of classifier accuracy:
 
@@ -107,7 +115,7 @@ sim_results_me <- run_simulations(data, 500, 1)
 #  scale_y_continuous(labels = scales::percent) +
 #  ylab("Accuracy")
 
-ggplot(sim_results_me) + geom_histogram(aes(x = accuracy), binwidth = 0.01, alpha = 0.5, color = "#000000") +
+ggplot(sim_results_me) + geom_histogram(aes(x = accuracy), binwidth = 0.01, color = "#000000", fill= "#ffaa33") +
   xlab("Accuracy") +
   ylab("Frequency")
 
@@ -116,7 +124,16 @@ detach(toy)
 
 ---
 
-\LARGE Can we estimate that distribution without access to the clean sample?
+\LARGE Can we estimate that distribution if we only observe the noisy sample?
+
+---
+
+<!-- add box plots here -->
+
+<!-- add plot of 500 SVM boundaries -->
+
+<!-- add plot of P(class 1) estimated from ensemble of 500 SVMs, ROFL -->
+
 
 # Ideas
 
