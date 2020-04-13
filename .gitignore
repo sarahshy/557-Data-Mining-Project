@@ -31,4 +31,4 @@ vignettes/*.pdf
 
 # compiled Presentation assets
 Presentation/slides.pdf
-Presentation/slides_files/*.*
+Presentation/slides_files/**
