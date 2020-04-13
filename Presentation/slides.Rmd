@@ -29,6 +29,10 @@ set.seed(557421)
 
 ## What is measurement error?
 
+**Measurement error** is the difference between a measured quantity and its true value.
+
+. . .
+
 In many statistical scenarios, we assume that our variables are perfect measurements from some sample.
 
 . . .
