@@ -77,14 +77,6 @@ soft_classify_set <- function(results, data) {
   data %>% mutate(p = scv(x, y))
 }
 
-plot_soft_classifier_raster <- function(results) {
-  x <- seq(-10, 10, by = 0.5)
-  y <- seq(-10, 10, by = 0.5)
-  ggplot(soft_classify_set(results, crossing(x, y))) +
-    geom_raster(aes(x = x, y = y, fill = p)) +
-    scale_fill_gradient(low = "#cc0011", high = "#223399")
-}
-
 svm_metrics <- function(data) {
   # uses global train, test
   svm_result <- svm(label ~ ., data = data[train,], kernel = "linear", cost = 1)

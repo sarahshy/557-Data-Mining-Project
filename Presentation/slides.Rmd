@@ -123,24 +123,32 @@ Using that same original dataset, we repeat this process 500 times to obtain the
 # simulate measurement error on one clean observation
 sim_results_me <- run_simulations(data, 500, 1)
 
+# simulate measurement error on one noisy observation
+sim_results_noisy <- run_simulations(noisy, 500, 1)
+
 ggplot(sim_results_me) + geom_histogram(aes(x = accuracy), binwidth = 0.01, color = "#000000", fill= "#ffaa33") +
   xlab("Accuracy") +
   ylab("Frequency")
 ```
 
+---
+
+\LARGE Can we estimate that distribution if we only observe the noisy dataset?
+
+
 ## Why have one decision boundary when you can have 500?
 
 ```{r echo=F}
-plot_data_with_decision_boundaries(noisy, sim_results_me)
+plot_data_with_decision_boundaries(noisy, sim_results_noisy)
 ```
 
 ## What about a SOFT CLASIFIER?
 
-This graph sucks.
+Look hard for PURPLE.
 
 ```{r echo=F}
 # The code kind of sucks too.
-classified <- soft_classify_set(sim_results_me, noisy)
+classified <- soft_classify_set(sim_results_noisy, noisy)
 
 ggplot(classified) +
   geom_point(aes(x = x, y = y, color = p), size = 2) +
@@ -149,29 +157,22 @@ ggplot(classified) +
   ylim(-10, 10)
 ```
 
-## What about a DIFFERENT WAY OF VISUALIZING A SOFT CLASSIFIER?
+## What about that boxplot I forgot?
 
-This might be even worse.
-
-```{r echo=F}
-plot_soft_classifier_raster(sim_results_me)
+```{r echo=F, fig.height=3}
+ggplot(bind_rows(
+  sim_results_me %>% add_column(base = "clean"),
+  sim_results_noisy %>% add_column(base = "noisy")
+)) + geom_boxplot(aes(x = base, y = accuracy))
 ```
+
+The variance of the "clean" box is `r sprintf("%0.5f", var(sim_results_me$accuracy))`, and the variance of the noisy box is `r sprintf("%0.5f", var(sim_results_noisy$accuracy))`.
+
 
 ```{r include=F}
 # KILL THE TOY
 detach(toy)
 ```
-
----
-
-\LARGE Can we estimate that distribution if we only observe the noisy dataset?
-
----
-
-
-
-<!-- add box plots here -->
-
 
 # Ideas
 
