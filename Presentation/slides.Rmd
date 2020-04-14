@@ -4,17 +4,10 @@ author: "Sarah Shy, Jonathan Hehir"
 date: "April 21, 2020"
 bibliography: sources.bib
 csl: american-statistical-association.csl
-output: beamer_presentation
-
-# For fancy beamer theme, we can use this instead of the `output` line above.
-# But it requires having the theme installed,
-# and I fear we could have cross-platform issues with LaTeX rendering.
-# Skipping for now, but we can play with it.
-#
-# output:
-#  beamer_presentation:
-#    theme: metropolis
-#    latex_engine: xelatex
+output:
+  beamer_presentation:
+    theme: metropolis
+    latex_engine: xelatex
 ---
 
 ```{r include=FALSE}
