@@ -20,6 +20,7 @@ output: beamer_presentation
 ```{r include=FALSE}
 library(tidyverse)
 library(mvtnorm)
+library(knitr)
 set.seed(3)
 ```
 
@@ -47,31 +48,23 @@ In especially nice cases, we know **how inaccurate** they are.
 
 Situations where we know our measurement error include:
 
-- Astronomy data (we'll come back to this)
+- Astronomy data
+  - We'll come back to this.
 - Privacy applications
   - Intentionally adding noise to observations is a common method for achieving privacy. We choose the amount of noise to add.
-- Earthquake data?
-  - Would need to ask our friend Ian Lee about this.
-- Many instruments used for measurement.
+- Various scientific and engineering settings
 
 ## Toy Example: Setup
 
 Mostly separable classes. No measurement error.
 
-- 500 observation
-- 2 classes:
-$X_{1}, \dots, X_{250} \sim N(\mu_1, \Sigma_1)$
-$X_{251}, \dots, X_{500} \sim N(\mu_2, \Sigma_2)$
-$\epsilon \sim N(\mathbf0, 1 0 0 3)$ **all this needs fixed**
-
-x | y | errX | errY
-----|----|----|----
-34.4 | 12 | 1 | 2
-34.4 | 12 | 1 | 2
-
----
-
-## Toy Example: A Clean Dataset (remove this slide?)
+$$
+\begin{aligned}
+\mathbf X_{1}, \dots, \mathbf X_{250} &\sim \text{i.i.d. } \mathcal N \left( \begin{bmatrix} 1 \\ 2 \end{bmatrix}, \begin{bmatrix} 3 & -0.5 \\ -0.5 & 2 \end{bmatrix} \right) \\
+\mathbf X_{251}, \dots, \mathbf X_{500} &\sim \text{i.i.d. }\mathcal N \left( \begin{bmatrix} -1 \\ -1 \end{bmatrix}, \begin{bmatrix} 4 & -1 \\ -1 & 1 \end{bmatrix} \right) \\
+\varepsilon &\sim \text{i.i.d. } \mathcal N \left( \begin{bmatrix} 0 \\ 0 \end{bmatrix}, \begin{bmatrix} 1 & 0 \\ 0 & 3 \end{bmatrix} \right)
+\end{aligned}
+$$
 
 ```{r echo=F, warning=F}
 toy <- new.env()
@@ -79,12 +72,12 @@ source("../Toys/svm_measurement_error_toy.R", toy)
 attach(toy)
 
 data <- make_base_data()
-plot_data(data)
+#kable(data %>% select(x1, x2) %>% add_column(error1 = 1, error2 = 3) %>% head(4), digits = 3)
 ```
 
-## Toy Example: A Clean Dataset
+## Toy Example: The Clean Dataset
 
-Simulated data with known measurement error
+This is the clean data (what we wouldn't actually observe):
 
 ```{r echo=F, warning=F}
 plot_data_with_error(data)
@@ -94,11 +87,11 @@ plot_data_with_error(data)
 
 ## Toy Example: Noisy Dataset
 
-After Gaussian perturbation:
+This is the noisy data (what we would actually observe):
 
 ```{r echo=F}
 noisy <- noisify_data(data)
-plot_data(noisy)
+plot_data_with_error(noisy)
 ```
 
 ## Toy Example: Classifier Performance
@@ -132,50 +125,13 @@ sim_results_noisy <- run_simulations(noisy, 500, 1)
 ggplot(sim_results_me) + geom_histogram(aes(x = accuracy), binwidth = 0.01, color = "#000000", fill= "#ffaa33") +
   xlab("Accuracy") +
   ylab("Frequency")
+
+detach(toy)
 ```
 
 ---
 
 \LARGE Can we estimate that distribution if we only observe the noisy dataset?
-
-
-## Why have one decision boundary when you can have 500?
-
-```{r echo=F}
-plot_data_with_decision_boundaries(noisy, sim_results_noisy)
-```
-
-## Using 500 decision boundaries as a SOFT CLASSIFIER?
-
-Look hard for PURPLE.
-
-```{r echo=F}
-# The code kind of sucks too.
-classified <- soft_classify_set(sim_results_noisy, noisy)
-
-ggplot(classified) +
-  geom_point(aes(x = x, y = y, color = p), size = 2) +
-  scale_color_gradient(low = "#cc0011", high = "#223399") +
-  xlim(-10, 10) +
-  ylim(-10, 10)
-```
-
-## What about that boxplot I forgot?
-
-```{r echo=F, fig.height=3}
-ggplot(bind_rows(
-  sim_results_me %>% add_column(base = "clean"),
-  sim_results_noisy %>% add_column(base = "noisy")
-)) + geom_boxplot(aes(x = base, y = accuracy))
-```
-
-The variance of the "clean" box is `r sprintf("%0.5f", var(sim_results_me$accuracy))`, and the variance of the noisy box is `r sprintf("%0.5f", var(sim_results_noisy$accuracy))`.
-
-
-```{r include=F}
-# KILL THE TOY
-detach(toy)
-```
 
 # Ideas
 
@@ -191,6 +147,43 @@ In our project:
 ## How do we do it?
 
 ![pipeline](Gaussian Perturbation Pipeline.png)
+
+# Back to the Toy Example
+
+## Toy Example: Estimating Variance Without the Clean Data
+
+```{r echo=F, fig.height=3}
+ggplot(bind_rows(
+  sim_results_me %>% add_column(observed = "clean"),
+  sim_results_noisy %>% add_column(observed = "noisy")
+)) + geom_boxplot(aes(x = observed, y = accuracy))
+```
+
+- The standard deviation of the "clean" distribution (what we want to estimate) is `r sprintf("%0.5f", sd(sim_results_me$accuracy))`.
+- The standard deviation of the "noisy" distribution is `r sprintf("%0.5f", sd(sim_results_noisy$accuracy))`.
+
+## Toy Example: A Decision Boundary for Each Perturbed Dataset
+
+```{r echo=F}
+plot_data_with_decision_boundaries(noisy, sim_results_noisy)
+```
+
+## Toy Example: Purple Points
+
+Averaging predictions over those 500 decision boundaries yields a softened classifier:
+
+```{r echo=F}
+classified <- soft_classify_set(sim_results_noisy, noisy)
+
+ggplot(classified) +
+  geom_point(aes(x = x1, y = x2, color = p), size = 2) +
+  scale_color_gradient(low = "#cc0011", high = "#223399") +
+  xlim(-10, 10) +
+  ylim(-10, 10)
+
+# KILL THE TOY
+detach(toy)
+```
 
 # Real Data
 

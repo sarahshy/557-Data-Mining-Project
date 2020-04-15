@@ -18,7 +18,7 @@ make_base_data <- function() {
   c2 <- rmvnorm(floor(n/2), mean = mean_2, sigma = sigma_2)
   
   data <- rbind(cbind(c1, 1), cbind(c2, 2))
-  colnames(data) <- c("x", "y", "label")
+  colnames(data) <- c("x1", "x2", "label")
   
   as_tibble(data) %>% mutate(label = as.factor(label))
 }
@@ -29,14 +29,14 @@ noisify_data <- function(data, noise_rounds = 1) {
   data_noisy <- data
   for(i in 1:noise_rounds) {
     noise <- rmvnorm(nrow(data), c(0, 0), sigma_noise)
-    data_noisy[,c("x", "y")] <- data_noisy[,c("x", "y")] + noise
+    data_noisy[,c("x1", "x2")] <- data_noisy[,c("x1", "x2")] + noise
   }
   data_noisy
 }
 
 plot_data <- function(data) {
   ggplot(data) +
-    geom_point(aes(x = x, y = y, color = label, shape = label)) +
+    geom_point(aes(x = x1, y = x2, color = label, shape = label), size = 2) +
     xlim(-10, 10) +
     ylim(-10, 10)
 }
@@ -44,14 +44,14 @@ plot_data <- function(data) {
 # blah, blah, DRY...
 plot_data_with_error <- function(data) {
   plot_data(data) +
-    geom_errorbar(aes(x = x,
-                      ymin = y - sigma_noise[2,2]/2,
-                      ymax = y + sigma_noise[2,2]/2,
+    geom_errorbar(aes(x = x1,
+                      ymin = x2 - sigma_noise[2,2]/2,
+                      ymax = x2 + sigma_noise[2,2]/2,
                       color = label)
                   , alpha = 0.2) +
-    geom_errorbarh(aes(y = y,
-                       xmin = x - sigma_noise[1,1]/2,
-                       xmax = x + sigma_noise[1,1]/2,
+    geom_errorbarh(aes(y = x2,
+                       xmin = x1 - sigma_noise[1,1]/2,
+                       xmax = x1 + sigma_noise[1,1]/2,
                        color = label),
                    alpha = 0.2)
 }
@@ -63,9 +63,9 @@ plot_data_with_decision_boundaries <- function(data, results) {
     geom_abline(intercept = intercepts, slope = slopes, alpha = 0.1, color = "#999999")
 }
 
-soft_classify <- function(results, x, y) {
+soft_classify <- function(results, x1, x2) {
   results %>%
-    transmute(fitted_sign = pmax(0, sign(beta_0 + beta_1 * x + beta_2 * y))) %>%
+    transmute(fitted_sign = pmax(0, sign(beta_0 + beta_1 * x1 + beta_2 * x2))) %>%
     summarize(p = mean(fitted_sign)) %>%
     as_vector() %>%
     unname()
@@ -73,8 +73,8 @@ soft_classify <- function(results, x, y) {
 
 # This is terrible.
 soft_classify_set <- function(results, data) {
-  scv <- Vectorize(function(x, y) soft_classify(results, x, y))
-  data %>% mutate(p = scv(x, y))
+  scv <- Vectorize(function(x1, x2) soft_classify(results, x1, x2))
+  data %>% mutate(p = scv(x1, x2))
 }
 
 svm_metrics <- function(data) {
