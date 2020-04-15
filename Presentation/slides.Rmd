@@ -196,7 +196,12 @@ In our project:
 
 ## Astronomy
 
-Here's some data from astronomers [@example2014].
+- Source: Sloan Digital Sky Server (SDSS) Data Release #12
+- Predictors: PSF magnitude in 5 color bands (u, g, r, i, and z)
+- Response: Object class (Star, Galaxy)
+- ~250,000 objects
+
+- 70/30 train/test random split
 
 . . .
 
