@@ -213,13 +213,6 @@ In our testing, our method performs amazingly. It is so good.
 Show confidence intervals
 Show probabiities? i.e. if all perturbed sets predict obs 1 to be class 1, prob = 1
 
-<!--
-var(sim_results$accuracy)
-var(sim_results_noisy$accuracy)
-
-
--->
-
 ## Future directions + related work
 - Gaussian perturbation in clustering setting (mostly used for cluster stability)
   - Note (remove text) In literature, usually choose a fixed variance. Here, use known measurement error so that our measure of cluster stability is essentially a function of the known measurement error
