@@ -216,7 +216,7 @@ test.set$class <- as.factor(test.set$class)
 - Source: Sloan Digital Sky Server (SDSS) Data Release #12
 - Predictors: PSF magnitude in 5 color bands (u, g, r, i, and z)
 - Response: Object class (Star, Galaxy)
-- ~250,000 objects
+- ~250,000 "clean" objects
 
 - 70/30 train/test random split
 
@@ -241,9 +241,13 @@ Just kidding. They don't have rockets. **At Goddard, ppl had bumper stickers tha
 
 But I bet they wish they did.
 
-## Results
+## Perturbing Astro Data
+- 500 perturbed sets
+- Classifier: Random Forest
+- Reported measures: Accuracy, AUC, Sensitivty, Specificity, F score
 
-In our testing, our method performs amazingly. It is so good.
+## Results: Confidence intervals
+
 Show confidence intervals
 Show probabiities? i.e. if all perturbed sets predict obs 1 to be class 1, prob = 1
 
