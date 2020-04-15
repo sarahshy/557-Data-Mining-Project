@@ -32,3 +32,6 @@ vignettes/*.pdf
 # compiled Presentation assets
 Presentation/slides.pdf
 Presentation/slides_files/**
+
+# predictions
+Data/preds_500.csv
