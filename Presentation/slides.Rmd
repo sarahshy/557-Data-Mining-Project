@@ -60,8 +60,9 @@ Mostly separable classes. No measurement error.
 
 - 500 observation
 - 2 classes:
-$X_251, \dots, X_500 \sim N(\mu_2, \Sigma_2)$
-$\epsilon \sim N(\mathbf0, 1 0 0 3$
+$X_{1}, \dots, X_{250} \sim N(\mu_1, \Sigma_1)$
+$X_{251}, \dots, X_{500} \sim N(\mu_2, \Sigma_2)$
+$\epsilon \sim N(\mathbf0, 1 0 0 3)$ **all this needs fixed**
 
 x | y | errX | errY
 ----|----|----|----
@@ -69,6 +70,8 @@ x | y | errX | errY
 34.4 | 12 | 1 | 2
 
 ---
+
+## Toy Example: A Clean Dataset (remove this slide?)
 
 ```{r echo=F, warning=F}
 toy <- new.env()
@@ -81,7 +84,7 @@ plot_data(data)
 
 ## Toy Example: A Clean Dataset
 
-Let's perturb this data using the following measurement error distribution:
+Simulated data with known measurement error
 
 ```{r echo=F, warning=F}
 plot_data_with_error(data)
@@ -91,7 +94,7 @@ plot_data_with_error(data)
 
 ## Toy Example: Noisy Dataset
 
-Now we have this mess:
+After Gaussian perturbation:
 
 ```{r echo=F}
 noisy <- noisify_data(data)
@@ -113,7 +116,7 @@ Clean Dataset | Noisy Dataset
 
 . . .
 
-**Can we trust this accuracy estimate?**
+**Can we trust this accuracy estimate having only observed one set of measurements?**
 
 ## Toy Example: Simulating Measurement Error
 
@@ -142,7 +145,7 @@ ggplot(sim_results_me) + geom_histogram(aes(x = accuracy), binwidth = 0.01, colo
 plot_data_with_decision_boundaries(noisy, sim_results_noisy)
 ```
 
-## What about a SOFT CLASIFIER?
+## Using 500 decision boundaries as a SOFT CLASSIFIER?
 
 Look hard for PURPLE.
 
@@ -187,7 +190,7 @@ In our project:
 
 ## How do we do it?
 
-Insert pipeline here. Sarah's job. Parallel is good.
+![pipeline](Gaussian Perturbation Pipeline.png)
 
 # Real Data
 
@@ -201,7 +204,7 @@ There are literally rocket scientists.
 
 . . .
 
-Just kidding. They don't have rockets.
+Just kidding. They don't have rockets. **At Goddard, ppl had bumper stickers that said "It literally is rocket science.**
 
 . . .
 
