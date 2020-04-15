@@ -22,6 +22,8 @@ library(tidyverse)
 library(mvtnorm)
 library(data.table)
 library(knitr)
+library(randomForest)
+library(kableExtra)
 set.seed(3)
 ```
 
@@ -213,7 +215,7 @@ test.set$class <- as.factor(test.set$class)
 
 - Note: we have slight class imbalance
 
-```{r, include = T, echo = F}
+```{r, echo = F}
 class.tbl <- prop.table(table(c(train.set$class, test.set$class)))
 names(class.tbl) <- c("Galaxy", "Star")
 class.tbl %>% t %>% kable(caption = "Proportion of dataset")
@@ -240,6 +242,28 @@ But I bet they wish they did.
 ## Results: Confidence intervals
 
 Show confidence intervals
+
+```{r, include = F}
+# reference RF
+load("../Data/reference_rf_measures.RData")
+```
+
+
+```{r, echo = F}
+meas <- fread("../Data/measures500.csv")
+meas.sd <- apply(meas, 2, sd)
+
+lower <- (rf.meas - 2*meas.sd) %>% round(4)
+upper <- (rf.meas + 2*meas.sd) %>% round(4)
+
+sprintf("(%f,%f)", lower, upper) %>%
+  matrix(nrow = length(rf.meas), dimnames = list(names(rf.meas), "95% CI")) %>%
+  kable %>%
+  kable_styling(font_size = 8)
+```
+
+
+
 Show probabiities? i.e. if all perturbed sets predict obs 1 to be class 1, prob = 1
 
 ## Future directions + related work
