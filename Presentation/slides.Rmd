@@ -190,7 +190,7 @@ In our project:
 
 ## How do we do it?
 
-![pipeline](Gaussian Perturbation Pipeline.png)
+![Gaussian perturbation pipeline for uncertainty quantification](Gaussian Perturbation Pipeline.png)
 
 # Real Data
 
