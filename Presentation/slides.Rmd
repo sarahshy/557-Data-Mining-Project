@@ -180,7 +180,7 @@ var(sim_results_noisy$accuracy)
 - Gaussian perturbation in clustering setting (mostly used for cluster stability)
   - Note (remove text) In literature, usually choose a fixed variance. Here, use known measurement error so that our measure of cluster stability is essentially a function of the known measurement error
 - tbd
-
+  
 # The End
 
 ## Bibliography
