@@ -20,6 +20,7 @@ output: beamer_presentation
 ```{r include=FALSE}
 library(tidyverse)
 library(mvtnorm)
+library(data.table)
 library(knitr)
 set.seed(3)
 ```
@@ -146,7 +147,7 @@ In our project:
 
 ## How do we do it?
 
-![pipeline](Gaussian Perturbation Pipeline.png)
+![Gaussian perturbation pipeline for uncertainty quantification](Gaussian Perturbation Pipeline.png)
 
 # Back to the Toy Example
 
@@ -187,9 +188,37 @@ detach(toy)
 
 # Real Data
 
+```{r, include = F}
+train.set1 <- fread("../Data/train_set1.csv")
+train.set2 <- fread("../Data/train_set2.csv")
+test.set <- fread("../Data/test_set.csv")
+
+# combine training sets
+train.set <- rbind(train.set1, train.set2)
+
+# convert class to factor
+train.set$class <- as.factor(train.set$class)
+test.set$class <- as.factor(test.set$class)
+```
+
+
 ## Astronomy
 
-Here's some data from astronomers [@example2014].
+- Source: Sloan Digital Sky Server (SDSS) Data Release #12
+- Predictors: PSF magnitude in 5 color bands (u, g, r, i, and z)
+- Response: Object class (Star, Galaxy)
+- ~250,000 "clean" objects
+
+- 70/30 train/test random split
+
+- Note: we have slight class imbalance
+
+```{r, include = T, echo = F}
+class.tbl <- prop.table(table(c(train.set$class, test.set$class)))
+names(class.tbl) <- c("Galaxy", "Star")
+class.tbl %>% t %>% kable(caption = "Proportion of dataset")
+```
+
 
 . . .
 
@@ -203,9 +232,13 @@ Just kidding. They don't have rockets. **At Goddard, ppl had bumper stickers tha
 
 But I bet they wish they did.
 
-## Results
+## Perturbing Astro Data
+- 500 perturbed sets
+- Classifier: Random Forest
+- Reported measures: Accuracy, AUC, Sensitivty, Specificity, F score
 
-In our testing, our method performs amazingly. It is so good.
+## Results: Confidence intervals
+
 Show confidence intervals
 Show probabiities? i.e. if all perturbed sets predict obs 1 to be class 1, prob = 1
 
