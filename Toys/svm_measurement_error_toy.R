@@ -6,10 +6,10 @@ n <- 500
 train <- sample(1:n, round(.8*n))
 test <- setdiff(1:n, train)
 
-mean_1 <- c(2, 5)
-sigma_1 <- matrix(c(.8, -.4, -.4, 1.2), nrow = 2)
-mean_2 <- c(1, 0)
-sigma_2 <- matrix(c(1, .3, .3, .4), nrow = 2)
+mean_1 <- c(1, 2)
+sigma_1 <- matrix(c(3, -.5, -.5, 2), nrow = 2)
+mean_2 <- c(-1, -1)
+sigma_2 <- matrix(c(4, -1, -1, 1), nrow = 2)
 
 sigma_noise <- matrix(c(1, 0, 0, 3), nrow = 2)
 
@@ -36,34 +36,60 @@ noisify_data <- function(data, noise_rounds = 1) {
 
 plot_data <- function(data) {
   ggplot(data) +
-    geom_point(aes(x = x, y = y, color = label, shape = label))
+    geom_point(aes(x = x, y = y, color = label, shape = label)) +
+    xlim(-10, 10) +
+    ylim(-10, 10)
 }
 
 # blah, blah, DRY...
 plot_data_with_error <- function(data) {
-  ggplot(data) +
+  plot_data(data) +
     geom_errorbar(aes(x = x,
-                    ymin = y - sigma_noise[2,2]/2,
-                    ymax = y + sigma_noise[2,2]/2,
-                    color = label)
-                , alpha = 0.2) +
+                      ymin = y - sigma_noise[2,2]/2,
+                      ymax = y + sigma_noise[2,2]/2,
+                      color = label)
+                  , alpha = 0.2) +
     geom_errorbarh(aes(y = y,
                        xmin = x - sigma_noise[1,1]/2,
                        xmax = x + sigma_noise[1,1]/2,
                        color = label),
-                   alpha = 0.2) +
-    geom_point(aes(x = x, y = y, color = label, shape = label))
+                   alpha = 0.2)
+}
+
+plot_data_with_decision_boundaries <- function(data, results) {
+  intercepts <- -results$beta_2^-1 * results$beta_0
+  slopes <- -results$beta_2^-1 * results$beta_1
+  plot_data(data) +
+    geom_abline(intercept = intercepts, slope = slopes, alpha = 0.1, color = "#999999")
+}
+
+soft_classify <- function(results, x, y) {
+  results %>%
+    transmute(fitted_sign = pmax(0, sign(beta_0 + beta_1 * x + beta_2 * y))) %>%
+    summarize(p = mean(fitted_sign)) %>%
+    as_vector() %>%
+    unname()
+}
+
+# This is terrible.
+soft_classify_set <- function(results, data) {
+  scv <- Vectorize(function(x, y) soft_classify(results, x, y))
+  data %>% mutate(p = scv(x, y))
 }
 
 svm_metrics <- function(data) {
   # uses global train, test
   svm_result <- svm(label ~ ., data = data[train,], kernel = "linear", cost = 1)
+  coefs <- coef(svm_result)
   predicted <- predict(svm_result, newdata = data[test,])
   
   counts <- table(predicted, data[test,]$label) %>% as.vector()
   total <- sum(counts)
   list(
-    accuracy = (counts[1] + counts[4]) / total
+    accuracy = (counts[1] + counts[4]) / total,
+    beta_0 = coefs[1],
+    beta_1 = coefs[2],
+    beta_2 = coefs[3]
   )
 }
 

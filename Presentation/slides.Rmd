@@ -20,7 +20,7 @@ output: beamer_presentation
 ```{r include=FALSE}
 library(tidyverse)
 library(mvtnorm)
-set.seed(557421)
+set.seed(3)
 ```
 
 (this slide is blank)
@@ -54,21 +54,21 @@ Situations where we know our measurement error include:
   - Would need to ask our friend Ian Lee about this.
 - Many instruments used for measurement.
 
-## Example: A Clean Sample
+## Toy Example: Setup
 
-Easily separable classes. No measurement error.
+Mostly separable classes. No measurement error.
 
 - 500 observation
 - 2 classes:
-$X_1, \dots, X_250 \sim N(\mu_1, \Sigma_1)$
 $X_251, \dots, X_500 \sim N(\mu_2, \Sigma_2)$
 $\epsilon \sim N(\mathbf0, 1 0 0 3$
 
 x | y | errX | errY
----- | ---- | ---- | ----
+----|----|----|----
 34.4 | 12 | 1 | 2
 34.4 | 12 | 1 | 2
 
+---
 
 ```{r echo=F, warning=F}
 toy <- new.env()
@@ -79,18 +79,26 @@ data <- make_base_data()
 plot_data(data)
 ```
 
+## Toy Example: A Clean Dataset
+
+Let's perturb this data using the following measurement error distribution:
+
+```{r echo=F, warning=F}
+plot_data_with_error(data)
+```
+
 ---
 
-## Example: Noisy Sample
+## Toy Example: Noisy Dataset
 
-This is the exact same sample, but with some error added to each point.
+Now we have this mess:
 
 ```{r echo=F}
 noisy <- noisify_data(data)
-plot_data_with_error(noisy)
+plot_data(noisy)
 ```
 
-## Example classifier performance
+## Toy Example: Classifier Performance
 
 Fitting a basic linear SVM to the above yields the following accuracies:
 
@@ -99,36 +107,72 @@ d_acc <- 100*svm_metrics(data)$accuracy
 n_acc <- 100*svm_metrics(noisy)$accuracy
 ```
 
-Original Sample | Noisy Sample
-----------------|----------------
+Clean Dataset | Noisy Dataset
+-------------|----------------
 `r sprintf("%0.1f", d_acc)`% | `r sprintf("%0.1f", n_acc)`%
 
 . . .
 
 **Can we trust this accuracy estimate?**
 
-## Simulating Measurement Error
+## Toy Example: Simulating Measurement Error
 
-Using that same original sample, we repeat this process 500 times to obtain the following distribution of classifier accuracy:
+Using that same original dataset, we repeat this process 500 times to obtain the following distribution of classifier accuracy:
 
 ```{r cache=T, echo=F}
 # simulate measurement error on one clean observation
 sim_results_me <- run_simulations(data, 500, 1)
 
-#ggplot(sim_results_me) + geom_boxplot(aes(y = accuracy)) +
-#  scale_y_continuous(labels = scales::percent) +
-#  ylab("Accuracy")
+# simulate measurement error on one noisy observation
+sim_results_noisy <- run_simulations(noisy, 500, 1)
 
-ggplot(sim_results_me) + geom_histogram(aes(x = accuracy), binwidth = 0.01, alpha = 0.5, color = "#000000") +
+ggplot(sim_results_me) + geom_histogram(aes(x = accuracy), binwidth = 0.01, color = "#000000", fill= "#ffaa33") +
   xlab("Accuracy") +
   ylab("Frequency")
-
-detach(toy)
 ```
 
 ---
 
-\LARGE Can we estimate that distribution without access to the clean sample?
+\LARGE Can we estimate that distribution if we only observe the noisy dataset?
+
+
+## Why have one decision boundary when you can have 500?
+
+```{r echo=F}
+plot_data_with_decision_boundaries(noisy, sim_results_noisy)
+```
+
+## What about a SOFT CLASIFIER?
+
+Look hard for PURPLE.
+
+```{r echo=F}
+# The code kind of sucks too.
+classified <- soft_classify_set(sim_results_noisy, noisy)
+
+ggplot(classified) +
+  geom_point(aes(x = x, y = y, color = p), size = 2) +
+  scale_color_gradient(low = "#cc0011", high = "#223399") +
+  xlim(-10, 10) +
+  ylim(-10, 10)
+```
+
+## What about that boxplot I forgot?
+
+```{r echo=F, fig.height=3}
+ggplot(bind_rows(
+  sim_results_me %>% add_column(base = "clean"),
+  sim_results_noisy %>% add_column(base = "noisy")
+)) + geom_boxplot(aes(x = base, y = accuracy))
+```
+
+The variance of the "clean" box is `r sprintf("%0.5f", var(sim_results_me$accuracy))`, and the variance of the noisy box is `r sprintf("%0.5f", var(sim_results_noisy$accuracy))`.
+
+
+```{r include=F}
+# KILL THE TOY
+detach(toy)
+```
 
 # Ideas
 
