@@ -171,7 +171,7 @@ That is, we would observe this if we could take 500 measurements.
 - **As a bonus:**
   - quantify algorithm stability
   - algorithm selection
-  - probabilities for each observation (think, soft classifier via ensemble learning)
+  - probabilities for each observation (think, soft classifier)
 
 ## How do we do it?
 
@@ -295,12 +295,17 @@ head(counts) %>% kable
 
 
 ## Future directions + related work
+- Improve predictions via GP (ensemble learning)
 - Gaussian perturbation in clustering setting (mostly used for cluster stability)
   - Note (remove text) In literature, usually choose a fixed variance. Here, use known measurement error so that our measure of cluster stability is essentially a function of the known measurement error
-- tbd
   
 # Questions?
 
 ## Works Cited
 
+**need dates and stuff**
+
+Moller, Ulrich. _Performance of Data Resampling Methods for Robust Class Discovery_
+McShane Bioinformatics 2002
+von Luxburg
 \fontsize{7}{7}\selectfont
