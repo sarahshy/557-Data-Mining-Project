@@ -35,6 +35,14 @@ set.seed(3)
 
 (this slide is blank)
 
+## Agenda
+
+- Intro to measurement error
+- Gaussian perturbation pipeline
+- Toy Example
+- Application to astronomy data
+
+
 # Introduction
 
 ## What is measurement error?
@@ -162,6 +170,7 @@ That is, we would observe this if we could take 500 measurements.
 
 - **As a bonus:**
   - quantify algorithm stability
+  - algorithm selection
   - probabilities for each observation (think, soft classifier via ensemble learning)
 
 ## How do we do it?
@@ -227,9 +236,7 @@ test.set$class <- as.factor(test.set$class)
 - **Predictors:** PSF magnitude in 5 color bands (u, g, r, i, and z)
 - **Response:** Object class (Star, Galaxy)
 - ~250,000 "clean" objects
-
 - 70/30 train/test random split
-
 - Note: we have slight class imbalance
 
 ```{r, echo = F}
@@ -293,8 +300,8 @@ head(counts) %>% kable
   - Note (remove text) In literature, usually choose a fixed variance. Here, use known measurement error so that our measure of cluster stability is essentially a function of the known measurement error
 - tbd
   
-# The End
+# Questions?
 
-## Bibliography
+## Works Cited
 
 \fontsize{7}{7}\selectfont
