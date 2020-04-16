@@ -265,7 +265,7 @@ sprintf("(%f,%f)", lower, upper) %>%
 ## Results: Probabilities
 
 ```{r, echo = F}
-counts <- fread("Data/counts_prob.csv")
+counts <- fread("../Data/counts_prob.csv")
 
 head(counts) %>% kable
 ```
