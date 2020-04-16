@@ -45,6 +45,7 @@ pull.meas <- function(labels, predictions){
 
 rf.fit <- randomForest(class ~ u_g + g_r + r_i + i_z, data = train.set, ntree = 100)
 test.preds <- predict(rf.fit, test.set, type = "response")
+test.probs <- predict(rf.fit, test.set, type = "prob")
 
 rf.meas <- pull.meas(labels = test.set$class, predictions = test.preds)
 
@@ -78,8 +79,15 @@ counts <- counts %>%
 
 write.csv(counts, "Data/counts_prob.csv", row.names = F)
 
+####### Misc things I was looking at
+##### compare with RF probabilities
+probs.g <- cbind(test.probs[,1], counts$prob_gal) %>% as.data.frame
+names(probs.g) <- c("rf", "gp")
+ggplot(probs.g, aes(x = rf, y = gp)) +
+  geom_point()
 
-##### After lunch: compare with RF probabilities
 
-
-
+cons.preds <- ifelse(counts$prob_gal > 0.5, "GALAXY", "STAR")
+confusionMatrix(cons.preds %>% as.factor, test.set$class)
+confusionMatrix(test.preds, test.set$class)
+# consensus doesn't predict better. RF already bootstraps, try on svm?

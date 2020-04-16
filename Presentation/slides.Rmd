@@ -17,6 +17,12 @@ output: beamer_presentation
 #    latex_engine: xelatex
 ---
 
+```{r global_options, include = FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      warning = FALSE,
+                      message = FALSE)
+```
+
 ```{r include=FALSE}
 library(tidyverse)
 library(mvtnorm)
@@ -59,7 +65,7 @@ Situations where we know our measurement error include:
 
 ## Toy Example: Setup
 
-Mostly separable classes. No measurement error.
+Mostly separable classes. $\varepsilon$ is known measurement error.
 
 $$
 \begin{aligned}
@@ -116,9 +122,9 @@ Clean Dataset | Noisy Dataset
 
 ## Toy Example: Simulating Measurement Error
 
-Using that same original dataset, we repeat this process 500 times to obtain the following distribution of classifier accuracy:
+Using the same original dataset, repeat this process 500 times to obtain the following distribution of classifier accuracy:
 
-```{r cache=T, echo=F}
+```{r cache=T, echo=F, fig.width = 5, fig.height = 3}
 # simulate measurement error on one clean observation
 sim_results_me <- run_simulations(data, 500, 1)
 
@@ -132,6 +138,8 @@ ggplot(sim_results_me) + geom_histogram(aes(x = accuracy), binwidth = 0.01, colo
 detach(toy)
 ```
 
+That is, we would observe this if we could take 500 measurements.
+
 ---
 
 \LARGE Can we estimate that distribution if we only observe the noisy dataset?
@@ -140,11 +148,20 @@ detach(toy)
 
 ## What do we want?
 
-- Want a method for estimating uncertainty in classification performance that can be used for any classifier.
-In our project:
-- We use Gaussian perturbation based on known measurement error
-- As a bonus:
-  - quantify class stability
+- A method to estimate uncertainty in classification performance that can be used for any classifier.
+
+. . .
+
+- **Our project:** use Gaussian perturbation based on known measurement error
+
+. . .
+
+- **Result:** confidence intervals for any performance measure
+
+. . .
+
+- **As a bonus:**
+  - quantify algorithm stability
   - probabilities for each observation (think, soft classifier via ensemble learning)
 
 ## How do we do it?
@@ -167,7 +184,7 @@ ggplot(bind_rows(
 
 ## Toy Example: A Decision Boundary for Each Perturbed Dataset
 
-```{r echo=F}
+```{r echo=F, fig.width = 5, fig.height = 3}
 plot_data_with_decision_boundaries(noisy, sim_results_noisy)
 ```
 
@@ -175,7 +192,7 @@ plot_data_with_decision_boundaries(noisy, sim_results_noisy)
 
 Averaging predictions over those 500 decision boundaries yields a softened classifier:
 
-```{r echo=F}
+```{r, fig.width = 5, fig.height = 3}
 classified <- soft_classify_set(sim_results_noisy, noisy)
 
 ggplot(classified) +
@@ -206,9 +223,9 @@ test.set$class <- as.factor(test.set$class)
 
 ## Astronomy
 
-- Source: Sloan Digital Sky Server (SDSS) Data Release #12
-- Predictors: PSF magnitude in 5 color bands (u, g, r, i, and z)
-- Response: Object class (Star, Galaxy)
+- **Source:** Sloan Digital Sky Server (SDSS) Data Release #12
+- **Predictors:** PSF magnitude in 5 color bands (u, g, r, i, and z)
+- **Response:** Object class (Star, Galaxy)
 - ~250,000 "clean" objects
 
 - 70/30 train/test random split
@@ -218,7 +235,7 @@ test.set$class <- as.factor(test.set$class)
 ```{r, echo = F}
 class.tbl <- prop.table(table(c(train.set$class, test.set$class)))
 names(class.tbl) <- c("Galaxy", "Star")
-class.tbl %>% t %>% kable(caption = "Proportion of dataset")
+class.tbl %>% t %>% kable(caption = "Class proportions of  full dataset")
 ```
 
 
