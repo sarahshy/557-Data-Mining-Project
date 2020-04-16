@@ -77,3 +77,9 @@ counts <- counts %>%
   mutate(prob_gal = GALAXY/ncol(preds))
 
 write.csv(counts, "Data/counts_prob.csv", row.names = F)
+
+
+##### After lunch: compare with RF probabilities
+
+
+
