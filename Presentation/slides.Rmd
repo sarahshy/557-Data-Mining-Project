@@ -262,6 +262,13 @@ sprintf("(%f,%f)", lower, upper) %>%
   kable_styling(font_size = 8)
 ```
 
+## Results: Probabilities
+
+```{r, echo = F}
+counts <- fread("Data/counts_prob.csv")
+
+head(counts) %>% kable
+```
 
 
 Show probabiities? i.e. if all perturbed sets predict obs 1 to be class 1, prob = 1

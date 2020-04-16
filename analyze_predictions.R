@@ -10,6 +10,7 @@ library(pROC)
 library(dplyr)
 library(parallel)
 library(plyr)
+set.seed(10101)
 
 train.set1 <- fread("Data/train_set1.csv")
 train.set2 <- fread("Data/train_set2.csv")
@@ -65,10 +66,14 @@ write.csv(df, "Data/measures500.csv", row.names = FALSE)
 # "Probabilities"
 ################################################
 
+# big mess
 
+counts <- apply(preds, 1, FUN = function(x){
+  table(factor(x, levels = c("GALAXY", "STAR")))
+}) %>% t
 
+counts <- counts %>%
+  as.data.frame %>%
+  mutate(prob_gal = GALAXY/ncol(preds))
 
-
-
-
-
+write.csv(counts, "Data/counts_prob.csv", row.names = F)
