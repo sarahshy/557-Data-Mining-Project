@@ -10,13 +10,31 @@ output:
     latex_engine: xelatex
 ---
 
+```{r global_options, include = FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      warning = FALSE,
+                      message = FALSE)
+```
+
 ```{r include=FALSE}
 library(tidyverse)
 library(mvtnorm)
-set.seed(557421)
+library(data.table)
+library(knitr)
+library(randomForest)
+library(kableExtra)
+set.seed(3)
 ```
 
 (this slide is blank)
+
+## Agenda
+
+- Intro to measurement error
+- Gaussian perturbation pipeline
+- Toy Example
+- Application to astronomy data
+
 
 # Introduction
 
@@ -40,28 +58,23 @@ In especially nice cases, we know **how inaccurate** they are.
 
 Situations where we know our measurement error include:
 
-- Astronomy data (we'll come back to this)
+- Astronomy data
+  - We'll come back to this.
 - Privacy applications
   - Intentionally adding noise to observations is a common method for achieving privacy. We choose the amount of noise to add.
-- Earthquake data?
-  - Would need to ask our friend Ian Lee about this.
-- Many instruments used for measurement.
+- Various scientific and engineering settings
 
-## Example: A Clean Sample
+## Toy Example: Setup
 
-Easily separable classes. No measurement error.
+Mostly separable classes. $\varepsilon$ is known measurement error.
 
-- 500 observation
-- 2 classes:
-$X_1, \dots, X_250 \sim N(\mu_1, \Sigma_1)$
-$X_251, \dots, X_500 \sim N(\mu_2, \Sigma_2)$
-$\epsilon \sim N(\mathbf0, 1 0 0 3$
-
-x | y | errX | errY
----- | ---- | ---- | ----
-34.4 | 12 | 1 | 2
-34.4 | 12 | 1 | 2
-
+$$
+\begin{aligned}
+\mathbf X_{1}, \dots, \mathbf X_{250} &\sim \text{i.i.d. } \mathcal N \left( \begin{bmatrix} 1 \\ 2 \end{bmatrix}, \begin{bmatrix} 3 & -0.5 \\ -0.5 & 2 \end{bmatrix} \right) \\
+\mathbf X_{251}, \dots, \mathbf X_{500} &\sim \text{i.i.d. }\mathcal N \left( \begin{bmatrix} -1 \\ -1 \end{bmatrix}, \begin{bmatrix} 4 & -1 \\ -1 & 1 \end{bmatrix} \right) \\
+\varepsilon &\sim \text{i.i.d. } \mathcal N \left( \begin{bmatrix} 0 \\ 0 \end{bmatrix}, \begin{bmatrix} 1 & 0 \\ 0 & 3 \end{bmatrix} \right)
+\end{aligned}
+$$
 
 ```{r echo=F, warning=F}
 toy <- new.env()
@@ -69,21 +82,29 @@ source("../Toys/svm_measurement_error_toy.R", toy)
 attach(toy)
 
 data <- make_base_data()
-plot_data(data)
+#kable(data %>% select(x1, x2) %>% add_column(error1 = 1, error2 = 3) %>% head(4), digits = 3)
+```
+
+## Toy Example: The Clean Dataset
+
+This is the clean data (what we wouldn't actually observe):
+
+```{r echo=F, warning=F}
+plot_data_with_error(data)
 ```
 
 ---
 
-## Example: Noisy Sample
+## Toy Example: Noisy Dataset
 
-This is the exact same sample, but with some error added to each point.
+This is the noisy data (what we would actually observe):
 
 ```{r echo=F}
 noisy <- noisify_data(data)
 plot_data_with_error(noisy)
 ```
 
-## Example classifier performance
+## Toy Example: Classifier Performance
 
 Fitting a basic linear SVM to the above yields the following accuracies:
 
@@ -92,90 +113,190 @@ d_acc <- 100*svm_metrics(data)$accuracy
 n_acc <- 100*svm_metrics(noisy)$accuracy
 ```
 
-Original Sample | Noisy Sample
-----------------|----------------
+Clean Dataset | Noisy Dataset
+-------------|----------------
 `r sprintf("%0.1f", d_acc)`% | `r sprintf("%0.1f", n_acc)`%
 
 . . .
 
-**Can we trust this accuracy estimate?**
+**Can we trust this accuracy estimate having only observed one set of measurements?**
 
-## Simulating Measurement Error
+## Toy Example: Simulating Measurement Error
 
-Using that same original sample, we repeat this process 500 times to obtain the following distribution of classifier accuracy:
+Using the same original dataset, repeat this process 500 times to obtain the following distribution of classifier accuracy:
 
-```{r cache=T, echo=F}
+```{r cache=T, echo=F, fig.width = 5, fig.height = 3}
 # simulate measurement error on one clean observation
 sim_results_me <- run_simulations(data, 500, 1)
 
-#ggplot(sim_results_me) + geom_boxplot(aes(y = accuracy)) +
-#  scale_y_continuous(labels = scales::percent) +
-#  ylab("Accuracy")
+# simulate measurement error on one noisy observation
+sim_results_noisy <- run_simulations(noisy, 500, 1)
 
-ggplot(sim_results_me) + geom_histogram(aes(x = accuracy), binwidth = 0.01, alpha = 0.5, color = "#000000") +
+ggplot(sim_results_me) + geom_histogram(aes(x = accuracy), binwidth = 0.01, color = "#000000", fill= "#ffaa33") +
   xlab("Accuracy") +
   ylab("Frequency")
 
 detach(toy)
 ```
 
+That is, we would observe this if we could take 500 measurements.
+
 ---
 
-\LARGE Can we estimate that distribution without access to the clean sample?
+\LARGE Can we estimate that distribution if we only observe the noisy dataset?
 
 # Ideas
 
 ## What do we want?
 
-- Want a method for estimating uncertainty in classification performance that can be used for any classifier.
-In our project:
-- We use Gaussian perturbation based on known measurement error
-- As a bonus:
-  - quantify class stability
-  - probabilities for each observation (think, soft classifier via ensemble learning)
+- A method to estimate uncertainty in classification performance that can be used for any classifier.
+
+. . .
+
+- **Our project:** use Gaussian perturbation based on known measurement error
+
+. . .
+
+- **Result:** confidence intervals for any performance measure
+
+. . .
+
+- **As a bonus:**
+  - quantify algorithm stability
+  - algorithm selection
+  - probabilities for each observation (think, soft classifier)
 
 ## How do we do it?
 
-Insert pipeline here. Sarah's job. Parallel is good.
+![Gaussian perturbation pipeline for uncertainty quantification](Gaussian Perturbation Pipeline.png)
+
+# Back to the Toy Example
+
+## Toy Example: Estimating Variance Without the Clean Data
+
+```{r echo=F, fig.height=3}
+ggplot(bind_rows(
+  sim_results_me %>% add_column(observed = "clean"),
+  sim_results_noisy %>% add_column(observed = "noisy")
+)) + geom_boxplot(aes(x = observed, y = accuracy))
+```
+
+- The standard deviation of the "clean" distribution (what we want to estimate) is `r sprintf("%0.5f", sd(sim_results_me$accuracy))`.
+- The standard deviation of the "noisy" distribution is `r sprintf("%0.5f", sd(sim_results_noisy$accuracy))`.
+
+## Toy Example: A Decision Boundary for Each Perturbed Dataset
+
+```{r echo=F, fig.width = 5, fig.height = 3}
+plot_data_with_decision_boundaries(noisy, sim_results_noisy)
+```
+
+## Toy Example: Purple Points
+
+Averaging predictions over those 500 decision boundaries yields a softened classifier:
+
+```{r, fig.width = 5, fig.height = 3}
+classified <- soft_classify_set(sim_results_noisy, noisy)
+
+ggplot(classified) +
+  geom_point(aes(x = x1, y = x2, color = p), size = 2) +
+  scale_color_gradient(low = "#cc0011", high = "#223399") +
+  xlim(-10, 10) +
+  ylim(-10, 10)
+
+# KILL THE TOY
+detach(toy)
+```
 
 # Real Data
 
-## Astronomy
+```{r, include = F}
+train.set1 <- fread("../Data/train_set1.csv")
+train.set2 <- fread("../Data/train_set2.csv")
+test.set <- fread("../Data/test_set.csv")
 
-Here's some data from astronomers [@example2014].
+# combine training sets
+train.set <- rbind(train.set1, train.set2)
+
+# convert class to factor
+train.set$class <- as.factor(train.set$class)
+test.set$class <- as.factor(test.set$class)
+```
+
+
+## Astronomy Data
+
+- **Source:** Sloan Digital Sky Server (SDSS) Data Release #12
+- **Predictors:** PSF magnitude in 5 color bands (u, g, r, i, and z)
+- **Response:** Object class (Star, Galaxy)
 
 . . .
 
-There are literally rocket scientists.
+- ~250,000 "clean" objects
+- 70/30 train/test random split
+- Note: we have slight class imbalance
 
-. . .
-
-Just kidding. They don't have rockets.
-
-. . .
-
-But I bet they wish they did.
-
-## Results
-
-In our testing, our method performs amazingly. It is so good.
-Show confidence intervals
-Show probabiities? i.e. if all perturbed sets predict obs 1 to be class 1, prob = 1
-
-<!--
-var(sim_results$accuracy)
-var(sim_results_noisy$accuracy)
+```{r, echo = F}
+class.tbl <- prop.table(table(c(train.set$class, test.set$class)))
+names(class.tbl) <- c("Galaxy", "Star")
+class.tbl %>% t %>% kable(caption = "Class proportions of  full dataset")
+```
 
 
--->
+## Perturbing Astro Data
+- 500 perturbed sets
+- Classifier: Random Forest
+- Reported measures: Accuracy, AUC, Sensitivty, Specificity, F score
+
+![](Gaussian Perturbation Pipeline.png){width=60%}
+
+## Results: Confidence intervals
+
+```{r, include = F}
+# reference RF
+load("../Data/reference_rf_measures.RData")
+```
+
+
+```{r, echo = F}
+meas <- fread("../Data/measures500.csv")
+meas.sd <- apply(meas, 2, sd)
+
+lower <- (rf.meas - 2*meas.sd) %>% round(4)
+upper <- (rf.meas + 2*meas.sd) %>% round(4)
+
+sprintf("(%f,%f)", lower, upper) %>%
+  matrix(nrow = length(rf.meas), dimnames = list(names(rf.meas), "95% CI")) %>%
+  kable %>%
+  kable_styling(font_size = 8)
+```
+
+## Results: Probabilities
+
+```{r, echo = F}
+counts <- fread("../Data/counts_prob.csv")
+
+head(counts) %>% kable
+```
+
+## Discussion
+
+- Uncertainty of performance as a "function" of known measurement error
+- Uncertainty of class labels
+- Algorithm selection: choose shorter CI
+
 
 ## Future directions + related work
+- Improve predictions via GP (ensemble learning)
 - Gaussian perturbation in clustering setting (mostly used for cluster stability)
   - Note (remove text) In literature, usually choose a fixed variance. Here, use known measurement error so that our measure of cluster stability is essentially a function of the known measurement error
-- tbd
+  
+# Questions?
 
-# The End
+## Works Cited
 
-## Bibliography
+**need dates and stuff**
 
+Moller, Ulrich. _Performance of Data Resampling Methods for Robust Class Discovery_
+McShane Bioinformatics 2002
+von Luxburg
 \fontsize{7}{7}\selectfont
