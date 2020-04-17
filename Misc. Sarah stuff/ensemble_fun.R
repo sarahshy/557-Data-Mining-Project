@@ -2,7 +2,7 @@
 ## just playing with stuff
 
 ################################################
-# Ensembling different classifiers
+# Stacking different classifiers
 ################################################
 
 # source: https://machinelearningmastery.com/machine-learning-ensembles-with-r/
@@ -30,8 +30,6 @@ results <- resamples(models)
 summary(results)
 dotplot(results)
 
-
-
 # correlation between results
 modelCor(results)
 splom(results)
@@ -42,8 +40,28 @@ set.seed(557)
 stack.rf <- caretStack(models, method="rf", metric="Accuracy", trControl=stackControl)
 print(stack.rf)
 
+################################################
+# SAveraging over perturbed sets
+################################################
+
+#toy example
+
+source("Toys/svm_measurement_error_toy.R")
+attach(toy)
+
+data <- make_base_data()
+noise <- noisify_data(data)
+
+# make 50 noisy sets
+# for each set, run rf (tuned?)
+# keep probabilities
+# average over probabilities for each observation
+# predict
 
 
 ################################################
-# Front Matter
+# Stacking perturbed sets
 ################################################
+
+
+
