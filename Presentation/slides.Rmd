@@ -258,8 +258,6 @@ class.tbl %>% t %>% kable(caption = "Class proportions of  full dataset")
 
 ## Results: Confidence intervals
 
-Show confidence intervals
-
 ```{r, include = F}
 # reference RF
 load("../Data/reference_rf_measures.RData")
