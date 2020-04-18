@@ -3,18 +3,12 @@ title: "Classification with Measurement Error"
 author: "Sarah Shy, Jonathan Hehir"
 date: "April 21, 2020"
 bibliography: sources.bib
+nocite: "@*"
 csl: american-statistical-association.csl
-output: beamer_presentation
-
-# For fancy beamer theme, we can use this instead of the `output` line above.
-# But it requires having the theme installed,
-# and I fear we could have cross-platform issues with LaTeX rendering.
-# Skipping for now, but we can play with it.
-#
-# output:
-#  beamer_presentation:
-#    theme: metropolis
-#    latex_engine: xelatex
+output:
+  beamer_presentation:
+    theme: metropolis
+    latex_engine: xelatex
 ---
 
 ```{r global_options, include = FALSE}
@@ -98,7 +92,7 @@ data <- make_base_data()
 
 This is the clean data (what we wouldn't actually observe):
 
-```{r echo=F, warning=F}
+```{r echo=F, warning=F, fig.width=5, fig.height=3}
 plot_data_with_error(data)
 ```
 
@@ -108,14 +102,14 @@ plot_data_with_error(data)
 
 This is the noisy data (what we would actually observe):
 
-```{r echo=F}
+```{r echo=F, fig.width=5, fig.height=3}
 noisy <- noisify_data(data)
 plot_data_with_error(noisy)
 ```
 
 ## Toy Example: Classifier Performance
 
-Fitting a basic linear SVM to the above yields the following accuracies:
+Fitting a linear SVM (tuned using 10-fold CV) to the above yields the following accuracies:
 
 ```{r include=F}
 d_acc <- 100*svm_metrics(data)$accuracy
@@ -134,7 +128,7 @@ Clean Dataset | Noisy Dataset
 
 Using the same original dataset, repeat this process 500 times to obtain the following distribution of classifier accuracy:
 
-```{r cache=T, echo=F}
+```{r cache=T, echo=F, fig.width = 4, fig.height = 2}
 # simulate measurement error on one clean observation
 sim_results_me <- run_simulations(data, 500, 1)
 
@@ -184,6 +178,8 @@ That is, we would observe this if we could take 500 measurements.
 ## Toy Example: Estimating Variance Without the Clean Data
 
 ```{r echo=F, fig.height = 3}
+attach(toy)
+
 ggplot(bind_rows(
   sim_results_me %>% add_column(observed = "clean"),
   sim_results_noisy %>% add_column(observed = "noisy")
@@ -265,7 +261,6 @@ class.tbl %>% t %>% kable(caption = "Class proportions of  full dataset")
 load("../Data/reference_rf_measures.RData")
 ```
 
-
 ```{r, echo = F}
 meas <- fread("../Data/measures500.csv")
 meas.sd <- apply(meas, 2, sd)
@@ -276,8 +271,9 @@ upper <- (rf.meas + 2*meas.sd) %>% round(4)
 sprintf("(%f,%f)", lower, upper) %>%
   matrix(nrow = length(rf.meas), dimnames = list(names(rf.meas), "95% CI")) %>%
   kable %>%
-  kable_styling(font_size = 8)
+  kable_styling(font_size = 10)
 ```
+
 
 ## Results: Probabilities
 
@@ -303,9 +299,6 @@ head(counts) %>% kable
 
 ## Works Cited
 
-**need dates and stuff**
+\fontsize{8}{8}\selectfont
 
-Moller, Ulrich. _Performance of Data Resampling Methods for Robust Class Discovery_
-McShane Bioinformatics 2002
-von Luxburg
-\fontsize{7}{7}\selectfont
+<!-- Put BibTeX entries in sources.bib, and they'll magically appear here. -->
