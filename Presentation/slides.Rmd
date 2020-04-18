@@ -268,10 +268,13 @@ meas.sd <- apply(meas, 2, sd)
 lower <- (rf.meas - 2*meas.sd) %>% round(4)
 upper <- (rf.meas + 2*meas.sd) %>% round(4)
 
-sprintf("(%f,%f)", lower, upper) %>%
+sprintf("(%0.4f, %0.4f)", lower, upper) %>%
   matrix(nrow = length(rf.meas), dimnames = list(names(rf.meas), "95% CI")) %>%
   kable %>%
   kable_styling(font_size = 10)
+
+quantile(meas$AUC, 0.025)
+quantile(meas$AUC, 0.975)
 ```
 
 
@@ -279,6 +282,7 @@ sprintf("(%f,%f)", lower, upper) %>%
 
 ```{r, echo = F}
 counts <- fread("../Data/counts_prob.csv")
+names(counts) <- c("n_votes_gal", "n_votes_star", "prob_gal")
 
 head(counts) %>% kable
 ```
@@ -291,7 +295,7 @@ head(counts) %>% kable
 
 
 ## Future directions + related work
-- Improve predictions via GP (ensemble learning)
+- Improve predictions via GP and stacking
 - Gaussian perturbation in clustering setting (mostly used for cluster stability)
   - Note (remove text) In literature, usually choose a fixed variance. Here, use known measurement error so that our measure of cluster stability is essentially a function of the known measurement error
   
