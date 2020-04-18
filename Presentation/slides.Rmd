@@ -3,6 +3,7 @@ title: "Classification with Measurement Error"
 author: "Sarah Shy, Jonathan Hehir"
 date: "April 21, 2020"
 bibliography: sources.bib
+nocite: "@*"
 csl: american-statistical-association.csl
 output:
   beamer_presentation:
@@ -296,9 +297,6 @@ head(counts) %>% kable
 
 ## Works Cited
 
-**need dates and stuff**
+\fontsize{8}{8}\selectfont
 
-Moller, Ulrich. _Performance of Data Resampling Methods for Robust Class Discovery_
-McShane Bioinformatics 2002
-von Luxburg
-\fontsize{7}{7}\selectfont
+<!-- Put BibTeX entries in sources.bib, and they'll magically appear here. -->
