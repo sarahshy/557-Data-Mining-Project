@@ -175,6 +175,8 @@ That is, we would observe this if we could take 500 measurements.
 ## Toy Example: Estimating Variance Without the Clean Data
 
 ```{r echo=F, fig.height=3}
+attach(toy)
+
 ggplot(bind_rows(
   sim_results_me %>% add_column(observed = "clean"),
   sim_results_noisy %>% add_column(observed = "noisy")
