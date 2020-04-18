@@ -3,7 +3,7 @@ library(e1071)
 library(tidyverse)
 
 n <- 500
-train <- sample(1:n, round(.8*n))
+train <- sample(1:n, round(.7*n))
 test <- setdiff(1:n, train)
 
 mean_1 <- c(1, 2)
@@ -82,11 +82,9 @@ svm_metrics <- function(data) {
   svm_result <- svm(label ~ ., data = data[train,], kernel = "linear", cost = 1)
   coefs <- coef(svm_result)
   predicted <- predict(svm_result, newdata = data[test,])
-  
-  counts <- table(predicted, data[test,]$label) %>% as.vector()
-  total <- sum(counts)
+  accuracy <- sum(predicted == data[test, ]$label)/length(test)
   list(
-    accuracy = (counts[1] + counts[4]) / total,
+    accuracy = accuracy,
     beta_0 = coefs[1],
     beta_1 = coefs[2],
     beta_2 = coefs[3]
