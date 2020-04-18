@@ -3,6 +3,7 @@
 library(data.table)
 library(ranger)
 library(caret)
+library(randomForest)
 
 train.set1 <- fread("Data/train_set1.csv")
 train.set2 <- fread("Data/train_set2.csv")
@@ -27,12 +28,20 @@ train.set3$err <- (train.set3$err - mean(train.set3$err))/sd(train.set3$err)
 
 train.set3$err <- (train.set3$err- min(train.set3$err))/max(train.set3$err)/max((train.set3$err- min(train.set3$err))/max(train.set3$err))
 
-##### tuning
-tuneRF(train.set[, c("u_g", "g_r", "r_i", "i_z")], train.set$class, ntreeTry = 50, trace = TRUE, plot = TRUE)
+##### tuning + fit
+rf.tune <- tuneRF(train.set[, c("u_g", "g_r", "r_i", "i_z")],
+                  train.set$class,
+                  ntreeTry = 50,
+                  doBest = TRUE,
+                  trace = TRUE,
+                  plot = TRUE)
+rf.tune
+pred <- predict(rf.tune, test.set)
+confusionMatrix(pred, test.set$class)
 
 ##### basic RF
 train.set$class <- as.factor(train.set$class)
-rf.fit <- randomForest(class ~ u_g + g_r + r_i + i_z, data = train.set, ntree = 100, mtry = 2)
+rf.fit <- randomForest(class ~ u_g + g_r + r_i + i_z, data = train.set, ntree = 50, mtry = 2)
 pred <- predict(rf.fit, test.set)
 confusionMatrix(pred, test.set$class)
 varImpPlot(rf.fit)
@@ -41,7 +50,7 @@ varImpPlot(rf.fit)
 rf.fit.wt <- ranger(class ~ u_g + g_r + r_i + i_z,
                     data = train.set3,
                     case.weights = train.set3$err,
-                    num.trees = 100,
+                    num.trees = 50,
                     mtry = 2)
 pred.wt <- predict(rf.fit.wt, test.set)
 confusionMatrix(pred.wt$predictions, test.set$class)
