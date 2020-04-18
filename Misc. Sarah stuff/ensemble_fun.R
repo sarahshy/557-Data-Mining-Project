@@ -4,7 +4,7 @@
 ################################################
 # Stacking different classifiers
 ################################################
-
+# just seeing how things work. this is all crap though
 # source: https://machinelearningmastery.com/machine-learning-ensembles-with-r/
 
 library(data.table)
@@ -43,6 +43,10 @@ print(stack.rf)
 ################################################
 # Averaging over perturbed sets
 ################################################
+# for linear, GP and bootstrap bagging doesn't improve prediction (linear is too stable? not enough bias?)
+# interesting, GP and B improve polynomials of degree 5, 7, .. but not others. idk man
+# revisit with a different example
+
 library(e1071)
 
 #toy example
