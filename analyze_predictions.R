@@ -52,7 +52,7 @@ rf.meas <- pull.meas(labels = test.set$class, predictions = test.preds)
 save(rf.meas, file = "Data/reference_rf_measures.RData")
 
 ################################################
-# Loops over all sets
+# Calculate measure for each perturbed set
 ################################################
 
 start <- Sys.time()
