@@ -22,10 +22,13 @@ train.set <- rbind(train.set1, train.set2)
 # create submodels
 
 train.set <- train.set[1:500,]
-control <- trainControl(method="repeatedcv", number=10, repeats=3, classProbs=TRUE)
-algorithmList <- c('lda', 'svmRadial', 'rf')
+control <- trainControl(method="cv", number = 5, classProbs=FALSE, savePredictions = "final")
+algorithmList <- c('svmRadial', 'rf')
 set.seed(557)
-models <- caretList(class~u_g + g_r + r_i + i_z, data=train.set, trControl=control, methodList=algorithmList)
+models <- caretList(class ~ u_g + g_r + r_i + i_z,
+                    data = train.set,
+                    trControl = control,
+                    methodList = algorithmList)
 results <- resamples(models)
 summary(results)
 dotplot(results)
@@ -41,7 +44,7 @@ stack.rf <- caretStack(models, method="rf", metric="Accuracy", trControl=stackCo
 print(stack.rf)
 
 ################################################
-# Averaging over perturbed sets
+# Averaging over perturbed sets: toy example
 ################################################
 # for linear, GP and bootstrap bagging doesn't improve prediction (linear is too stable? not enough bias?)
 # interesting, GP and B improve polynomials of degree 5, 7, .. but not others. idk man
@@ -164,6 +167,32 @@ confusionMatrix(new.preds %>% as.factor, dat[-train.idx, ]$label)
 ################################################
 # Stacking perturbed sets
 ################################################
+library(parallel)
+library(randomForest)
 
+source("Astro/perturb_astro_fn.R") # different from the perturb function in perturb_predict.R
+set.seed(248)
+p.test <- create.perturbed.dat(dat = test.set)
 
+n.sets <- 2
+start <- Sys.time()
+rf.pert.preds <- mclapply(1:n.sets, FUN = function(set.idx){
+  # create perturbed training sets
 
+  p.train1 <- create.perturbed.dat(dat = train.set1)
+  p.train2 <- create.perturbed.dat(dat = train.set2)
+
+  # run rf
+  rf.fit <- randomForest(class ~ u_g + g_r + r_i + i_z, data = p.train1, ntree = 100, mtry = 1)
+  
+  # rf predictions
+  predict(rf.fit, p.train2, type = "response")
+}, mc.cores = 2)
+Sys.time() - start # print time elapsed
+
+# convert list to df of predictions
+rf.preds <- rf.pert.preds %>% unlist %>% matrix(ncol = n.sets) %>% as.data.frame
+
+######### change to save all rf models from the loop. Will need for test set
+########### okay now fit model on rf.preds. Response is true class of train.set2
+###### Then run test through all models
