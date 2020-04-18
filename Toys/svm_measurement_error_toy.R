@@ -79,12 +79,15 @@ soft_classify_set <- function(results, data) {
 
 svm_metrics <- function(data) {
   # uses global train, test
-  svm_result <- svm(label ~ ., data = data[train,], kernel = "linear", cost = 1)
+  svm_result <- svm(label ~ ., data = data[train,], kernel = "linear", cost = 0.18)
+  
+  # my cutsie tuned polynomial svm
+  # svm_result <- svm(label ~ ., data = data[train,], kernel = "poly", degree = 2, gamma = 1, coef0 = 0.1, cost = 10)
   coefs <- coef(svm_result)
   predicted <- predict(svm_result, newdata = data[test,])
-  accuracy <- sum(predicted == data[test, ]$label)/length(test)
+  acc <- mean(predicted == data[test, ]$label)
   list(
-    accuracy = accuracy,
+    accuracy = acc,
     beta_0 = coefs[1],
     beta_1 = coefs[2],
     beta_2 = coefs[3]
