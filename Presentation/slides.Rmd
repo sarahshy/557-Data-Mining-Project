@@ -33,10 +33,11 @@ set.seed(3)
 
 ## Agenda
 
-- Intro to measurement error
-- Gaussian perturbation pipeline
+- Introduction to Measurement Error
 - Toy Example
-- Application to astronomy data
+- Gaussian Perturbation Pipeline
+- Application to Toy Example
+- Application to Astronomy Data
 
 
 # Introduction
@@ -71,15 +72,20 @@ Situations where we know our measurement error include:
   - Intentionally adding noise to observations is a common method for achieving privacy. We choose the amount of noise to add.
 - Various scientific and engineering settings
 
+# Toy Example
+
 ## Toy Example: Setup
 
-Mostly separable classes. $\varepsilon$ is known measurement error.
+- Two classes, mostly separable.
+- $\mathbf X_i$ represents the true values.
+  -  In practice, these might be individuals in a study, astronomy objects, etc.
+- $\varepsilon_i$ is the known measurement error.
 
 $$
 \begin{aligned}
 \mathbf X_{1}, \dots, \mathbf X_{250} &\sim \text{i.i.d. } \mathcal N \left( \begin{bmatrix} 1 \\ 2 \end{bmatrix}, \begin{bmatrix} 3 & -0.5 \\ -0.5 & 2 \end{bmatrix} \right) \\
 \mathbf X_{251}, \dots, \mathbf X_{500} &\sim \text{i.i.d. }\mathcal N \left( \begin{bmatrix} -1 \\ -1 \end{bmatrix}, \begin{bmatrix} 4 & -1 \\ -1 & 1 \end{bmatrix} \right) \\
-\varepsilon &\sim \text{i.i.d. } \mathcal N \left( \begin{bmatrix} 0 \\ 0 \end{bmatrix}, \begin{bmatrix} 1 & 0 \\ 0 & 3 \end{bmatrix} \right)
+\varepsilon_i &\sim \text{i.i.d. } \mathcal N \left( \begin{bmatrix} 0 \\ 0 \end{bmatrix}, \begin{bmatrix} 1 & 0 \\ 0 & 3 \end{bmatrix} \right)
 \end{aligned}
 $$
 
@@ -92,9 +98,9 @@ data <- make_base_data()
 #kable(data %>% select(x1, x2) %>% add_column(error1 = 1, error2 = 3) %>% head(4), digits = 3)
 ```
 
-## Toy Example: The Clean Dataset
+## Toy Example: The True Values
 
-This is the clean data (what we wouldn't actually observe):
+These are our simulated true $\mathbf X$ values:
 
 ```{r echo=F, warning=F, fig.width=5, fig.height=3}
 plot_data_with_error(data)
@@ -102,9 +108,9 @@ plot_data_with_error(data)
 
 ---
 
-## Toy Example: Noisy Dataset
+## Toy Example: The Measured Values
 
-This is the noisy data (what we would actually observe):
+These are the measured values, $\mathbf X + \varepsilon$:
 
 ```{r echo=F, fig.width=5, fig.height=3}
 noisy <- noisify_data(data)
@@ -120,19 +126,20 @@ d_acc <- 100*svm_metrics(data)$accuracy
 n_acc <- 100*svm_metrics(noisy)$accuracy
 ```
 
-Clean Dataset | Noisy Dataset
--------------|----------------
-`r sprintf("%0.1f", d_acc)`% | `r sprintf("%0.1f", n_acc)`%
+Dataset  | Accuracy
+---------|------------
+True     | `r sprintf("%0.1f", d_acc)`%
+Measured | `r sprintf("%0.1f", n_acc)`%
 
 . . .
 
-**Can we trust this accuracy estimate having only observed one set of measurements?**
+**Can we trust this accuracy estimate having only observed one set of noisy measurements?**
 
 ## Toy Example: Simulating Measurement Error
 
-Using the same original dataset, repeat this process 500 times to obtain the following distribution of classifier accuracy:
+Using the same original dataset, we simulate taking noisy measurements and fitting the SVM 500 times to obtain the following distribution of classifier accuracy:
 
-```{r cache=T, echo=F, fig.width = 4, fig.height = 2}
+```{r cache=T, echo=F, fig.width = 4, fig.height = 1.5}
 # simulate measurement error on one clean observation
 sim_results_me <- run_simulations(data, 500, 1)
 
@@ -146,13 +153,13 @@ ggplot(sim_results_me) + geom_histogram(aes(x = accuracy), binwidth = 0.01, colo
 detach(toy)
 ```
 
-That is, we would observe this if we could take 500 measurements.
+That is, we might observe this distribution if we could take 500 sets of measurements.
 
 ---
 
-\LARGE Can we estimate that distribution if we only observe the noisy dataset?
+\LARGE Can we estimate that distribution if we only observe one set of measurements?
 
-# Ideas
+# Gaussian Perturbation Pipeline
 
 ## What do we want?
 
@@ -168,7 +175,7 @@ That is, we would observe this if we could take 500 measurements.
 
 . . .
 
-- **As a bonus:**
+- **Bonus:**
   - quantify algorithm stability
   - algorithm selection
   - probabilities for each observation (think, soft classifier)
@@ -177,21 +184,24 @@ That is, we would observe this if we could take 500 measurements.
 
 ![Gaussian perturbation pipeline for uncertainty quantification](Gaussian Perturbation Pipeline.png)
 
-# Back to the Toy Example
+# Application to Toy Example
 
-## Toy Example: Estimating Variance Without the Clean Data
+## Toy Example: Estimating Variance Without the True Values
 
 ```{r echo=F, fig.height = 3}
 attach(toy)
 
 ggplot(bind_rows(
-  sim_results_me %>% add_column(observed = "clean"),
-  sim_results_noisy %>% add_column(observed = "noisy")
-)) + geom_boxplot(aes(x = observed, y = accuracy))
+  sim_results_me %>% add_column(observed = "True Values"),
+  sim_results_noisy %>% add_column(observed = "Measured Values")
+)) +
+  geom_boxplot(aes(x = observed, y = accuracy)) +
+  xlab("Starting Dataset") +
+  ylab("Accuracy")
 ```
 
-- The standard deviation of the "clean" distribution (what we want to estimate) is `r sprintf("%0.5f", sd(sim_results_me$accuracy))`.
-- The standard deviation of the "noisy" distribution is `r sprintf("%0.5f", sd(sim_results_noisy$accuracy))`.
+- The standard deviation when starting with **true** values (what we want to estimate) is `r sprintf("%0.5f", sd(sim_results_me$accuracy))`.
+- The standard deviation when starting with a set of **noisy measurements** is `r sprintf("%0.5f", sd(sim_results_noisy$accuracy))`.
 
 ## Toy Example: A Decision Boundary for Each Perturbed Dataset
 
@@ -216,7 +226,7 @@ ggplot(classified) +
 detach(toy)
 ```
 
-# Real Data
+# Application to Real Data
 
 ```{r, include = F}
 train.set1 <- fread("../Data/train_set1.csv")
