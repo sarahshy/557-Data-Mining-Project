@@ -57,6 +57,10 @@ This is often **false**. In many cases, we know our measurements are inaccurate.
 
 In especially nice cases, we know **how inaccurate** they are.
 
+. . .
+
+**Question:** Can we make use of known measurement error?
+
 ## Applications of Measurement Error
 
 Situations where we know our measurement error include:
