@@ -76,7 +76,6 @@ Situations where we know our measurement error include:
 
 ## Toy Example: Setup
 
-- Two classes, mostly separable.
 - $\mathbf X_i$ represents the true values.
   -  In practice, these might be individuals in a study, astronomy objects, etc.
 - $\varepsilon_i$ is the known measurement error.
