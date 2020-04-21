@@ -76,7 +76,6 @@ Situations where we know our measurement error include:
 
 ## Toy Example: Setup
 
-- Two classes, mostly separable.
 - $\mathbf X_i$ represents the true values.
   -  In practice, these might be individuals in a study, astronomy objects, etc.
 - $\varepsilon_i$ is the known measurement error.
@@ -146,9 +145,16 @@ sim_results_me <- run_simulations(data, 500, 1)
 # simulate measurement error on one noisy observation
 sim_results_noisy <- run_simulations(noisy, 500, 1)
 
-ggplot(sim_results_me) + geom_histogram(aes(x = accuracy), binwidth = 0.01, color = "#000000", fill= "#ffaa33") +
-  xlab("Accuracy") +
-  ylab("Frequency")
+#ggplot(sim_results_me) + geom_histogram(aes(x = accuracy), binwidth = 0.01, color = #"#000000", fill= "#ffaa33", size = .25) +
+#  xlab("Accuracy") +
+#  ylab("Frequency") +
+#  theme_bw(base_size = 8)
+
+ggplot(sim_results_me) + geom_boxplot(aes(y = accuracy), fill = "#ffaa33", size = 0.25) +
+  ylab("Accuracy") +
+  coord_flip() +
+  theme_bw(base_size = 8) +
+  theme(axis.text.y = element_blank())
 
 detach(toy)
 ```
@@ -182,7 +188,7 @@ That is, we might observe this distribution if we could take 500 sets of measure
 
 ## How do we do it?
 
-![Gaussian perturbation pipeline for uncertainty quantification](Gaussian Perturbation Pipeline.png)
+![Gaussian perturbation pipeline for uncertainty quantification](pipeline.png)
 
 # Application to Toy Example
 
@@ -192,16 +198,18 @@ That is, we might observe this distribution if we could take 500 sets of measure
 attach(toy)
 
 ggplot(bind_rows(
-  sim_results_me %>% add_column(observed = "True Values"),
-  sim_results_noisy %>% add_column(observed = "Measured Values")
+  sim_results_me %>% add_column(observed = "500 Sets of Measurements"),
+  sim_results_noisy %>% add_column(observed = "500 Perturbations of 1 Set of Measurements")
 )) +
-  geom_boxplot(aes(x = observed, y = accuracy)) +
-  xlab("Starting Dataset") +
-  ylab("Accuracy")
+  geom_boxplot(aes(x = observed, y = accuracy), fill = c("#999999", "#ffaa33")) +
+  xlab(" ") +
+  ylab("Accuracy") +
+  coord_flip() +
+  theme_bw(base_size = 8)
 ```
 
-- The standard deviation when starting with **true** values (what we want to estimate) is `r sprintf("%0.5f", sd(sim_results_me$accuracy))`.
-- The standard deviation when starting with a set of **noisy measurements** is `r sprintf("%0.5f", sd(sim_results_noisy$accuracy))`.
+- The standard deviation when taking 500 sets of measurements (what we want to estimate) is `r sprintf("%0.5f", sd(sim_results_me$accuracy))`.
+- The standard deviation when performing Gaussian perturbation on one set of measurements is `r sprintf("%0.5f", sd(sim_results_noisy$accuracy))`.
 
 ## Toy Example: A Decision Boundary for Each Perturbed Dataset
 
@@ -245,19 +253,19 @@ test.set$class <- as.factor(test.set$class)
 ## Astronomy Data
 
 - **Source:** Sloan Digital Sky Server (SDSS) Data Release #12
-- **Predictors:** PSF magnitude in 5 color bands (u, g, r, i, and z)
-- **Response:** Object class (Star, Galaxy)
+- **Variables:** PSF magnitude in 5 wavelengths (UV, green, red, near-IR, IR)
+- **Response:** Object class (star, galaxy)
 
 . . .
 
-- ~250,000 "clean" objects
+- Around 250,000 objects
 - 70/30 train/test random split
 - Note: we have slight class imbalance
 
 ```{r, echo = F}
 class.tbl <- prop.table(table(c(train.set$class, test.set$class)))
 names(class.tbl) <- c("Galaxy", "Star")
-class.tbl %>% t %>% kable(caption = "Class proportions of  full dataset")
+class.tbl %>% t %>% kable("latex", caption = "Class proportions of  full dataset", booktabs = T)
 ```
 
 
@@ -266,9 +274,13 @@ class.tbl %>% t %>% kable(caption = "Class proportions of  full dataset")
 - Classifier: Random Forest
 - Reported measures: Accuracy, AUC, Sensitivty, Specificity, F score
 
-![](Gaussian Perturbation Pipeline.png){width=60%}
+![Remember me?](pipeline.png){width=60%}
 
 ## Results: Confidence intervals
+
+**Idea:** Use standard deviation from perturbed results as the estimated standard error for the distribution of these measures.
+
+. . .
 
 ```{r, include = F}
 # reference RF
@@ -282,37 +294,45 @@ meas.sd <- apply(meas, 2, sd)
 lower <- (rf.meas - 2*meas.sd) %>% round(4)
 upper <- (rf.meas + 2*meas.sd) %>% round(4)
 
-sprintf("(%0.4f, %0.4f)", lower, upper) %>%
+sprintf("(%0.4f, %0.4f)", lower, pmin(1, upper)) %>%
   matrix(nrow = length(rf.meas), dimnames = list(names(rf.meas), "95% CI")) %>%
-  kable %>%
+  kable("latex", booktabs = T) %>%
   kable_styling(font_size = 10)
 
-quantile(meas$AUC, 0.025)
-quantile(meas$AUC, 0.975)
+#quantile(meas$AUC, 0.025)
+#quantile(meas$AUC, 0.975)
 ```
 
+. . .
 
-## Results: Probabilities
+**Limitation:** Values particularly close to 0 or 1 are likely to produce invalid confidence intervals.
+
+## Bonus Results: Probabilities
+
+Vote count and probabilities for a selection of observations based on 500 perturbations.
 
 ```{r, echo = F}
 counts <- fread("../Data/counts_prob.csv")
-names(counts) <- c("n_votes_gal", "n_votes_star", "prob_gal")
+counts <- cbind(1:nrow(counts), counts)
+names(counts) <- c("Observation ID", "Galaxy Votes", "Star Votes", "P(Galaxy)")
 
-head(counts) %>% kable
+head(counts) %>% kable("latex", booktabs = T) %>% kable_styling(position = "center")
 ```
 
-## Discussion
+# Discussion
+
+## Summary
 
 - Uncertainty of performance as a "function" of known measurement error
-- Uncertainty of class labels
-- Algorithm selection: choose shorter CI
+- Stablility of class labels
+- Algorithm selection
 
+## Future Directions + Related Work
 
-## Future directions + related work
-- Improve predictions via GP and stacking
-- Gaussian perturbation in clustering setting (mostly used for cluster stability)
-  - Note (remove text) In literature, usually choose a fixed variance. Here, use known measurement error so that our measure of cluster stability is essentially a function of the known measurement error
-  
+- How do we construct confidence intervals when values are near 1?
+- Can we use these results to improve classifier prediction (e.g., ensemble methods)?
+- Extend these results to clustering setting...
+
 # Questions?
 
 ## Works Cited
