@@ -8,11 +8,21 @@ output:
     toc_depth: 1
 ---
 
-Outline:
-- Abstract
-- Intro:
-  - what is measurement error and why we should use it for uncertainty quantification
-  - what is gaussian perturbation and what we get from it?
-    - why is stability useful?
-    - 
+Game Plan:
+
+* Abstract
+* Intro:
+    + what is measurement error and why we should use it for uncertainty quantification
+    + what is gaussian perturbation and what we get from it?
+        - uncertainty quantification (important if we observe only one noisy instance, ideally measure many times)
+        - stability (important for reproducibility, trustworthiness, more bs like that)
+        - soft classification (for classifiers that don't have probabilities)
+* Formal Gaussian perturbation pipeline
+* Toy example for illustration
+* Astro data 
+* Discussion:
+    + Recap what we have
+* Limitations
+* Future Directions and Related Work
+* Bib
   
