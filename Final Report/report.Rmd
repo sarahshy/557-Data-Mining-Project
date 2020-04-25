@@ -1,0 +1,18 @@
+---
+title: "STAT 557 Final Project Report"
+author: "Sarah Shy, Jonathan Hehir"
+date: "4/25/2020"
+output:
+  pdf_document:
+    toc: true
+    toc_depth: 1
+---
+
+Outline:
+- Abstract
+- Intro:
+  - what is measurement error and why we should use it for uncertainty quantification
+  - what is gaussian perturbation and what we get from it?
+    - why is stability useful?
+    - 
+  
