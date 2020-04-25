@@ -8,7 +8,7 @@ output:
     toc_depth: 1
 ---
 
-Game Plan:
+Game Plan (to be deeleeted):
 
 * Abstract
 * Intro:
@@ -25,4 +25,12 @@ Game Plan:
 * Limitations
 * Future Directions and Related Work
 * Bib
-  
+
+# Abstract
+
+# Introduction
+
+Measurement error is the difference between a measured quantity and its true value.
+
+
+# Bib
