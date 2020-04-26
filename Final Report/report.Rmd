@@ -14,6 +14,12 @@ knitr::opts_chunk$set(echo = FALSE,
                       message = FALSE)
 ```
 
+```{r}
+# Front matter
+library(cowplot)
+```
+
+
 Game Plan (to be deeleeted):
 
 * Abstract
@@ -66,7 +72,7 @@ $$
 
 That is, the values we observe each time we take a measurement of $\mathbf X$ is $\mathbf U = \mathbf X + \varepsilon$.
 
-The true values and one instance of observed values are shown in Figure****
+The true values and one instance of observed values are shown in Figure \@ref(fig:trueData).
 
 ```{r echo=F, warning=F}
 toy <- new.env()
@@ -77,8 +83,13 @@ data <- make_base_data()
 #kable(data %>% select(x1, x2) %>% add_column(error1 = 1, error2 = 3) %>% head(4), digits = 3)
 ```
 
-```{r true_data, echo=F}
-plot_data_with_error(data)
+```{r trueData, fig.cap = "The True Data"}
+plt1 <- plot_data_with_error(data)
+
+noisy <- noisify_data(data)
+plt2 <- plot_data_with_error(noisy)
+
+plot_grid(plt1, plt2)
 ```
 
 # Bib
