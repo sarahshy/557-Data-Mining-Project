@@ -11,7 +11,9 @@ output:
 ```{r global_options, include = FALSE}
 knitr::opts_chunk$set(echo = FALSE,
                       warning = FALSE,
-                      message = FALSE)
+                      message = FALSE,
+                      fig.width = 5,
+                      fig.height = 3)
 ```
 
 ```{r}
@@ -55,6 +57,8 @@ In many contexts, we know the variation of our measurement error. This is partic
 
 # Toy Example
 
+## Toy Example: Set up
+
 We generated data representing true values of a sample from the following
 
 $$
@@ -91,6 +95,95 @@ plt2 <- plot_data_with_error(noisy)
 
 plot_grid(plt1, plt2)
 ```
+
+## Toy Example: Linear Classifier on True Data and on Noisy Data
+
+Fitting a linear SVM (tuned using 10-fold CV) to the above yields the following accuracies:
+
+```{r include=F}
+d_acc <- 100*svm_metrics(data)$accuracy
+n_acc <- 100*svm_metrics(noisy)$accuracy
+```
+
+Dataset  | Accuracy
+---------|------------
+True     | `r sprintf("%0.1f", d_acc)`%
+Measured | `r sprintf("%0.1f", n_acc)`%
+
+As expected, the linear classifier can better separate the classes in the true data. Some blah blah on this? In reality, we only have access to the noisy data. Can we trust this accuracy estimate having only observed one set of noisy measurements?
+
+## Toy Example: 500 measurements
+
+Using the same original dataset, we simulate taking noisy measurements and fitting the SVM 500 times to obtain the following distribution of classifier accuracy:
+
+```{r cache=T, echo=F}
+# simulate measurement error on one clean observation
+sim_results_me <- run_simulations(data, 500, 1)
+
+# simulate measurement error on one noisy observation
+sim_results_noisy <- run_simulations(noisy, 500, 1)
+
+#ggplot(sim_results_me) + geom_histogram(aes(x = accuracy), binwidth = 0.01, color = #"#000000", fill= "#ffaa33", size = .25) +
+#  xlab("Accuracy") +
+#  ylab("Frequency") +
+#  theme_bw(base_size = 8)
+
+ggplot(sim_results_me) + geom_boxplot(aes(y = accuracy), fill = "#ffaa33", size = 0.25) +
+  ylab("Accuracy") +
+  coord_flip() +
+  theme_bw(base_size = 8) +
+  theme(axis.text.y = element_blank())
+
+detach(toy)
+```
+
+That is, we might observe this distribution if we could take 500 sets of measurements.
+
+## Toy Example: Estimating Variance Without the True Values
+
+```{r echo=F}
+attach(toy)
+
+ggplot(bind_rows(
+  sim_results_me %>% add_column(observed = "500 Sets of Measurements"),
+  sim_results_noisy %>% add_column(observed = "500 Perturbations of 1 Set of Measurements")
+)) +
+  geom_boxplot(aes(x = observed, y = accuracy), fill = c("#999999", "#ffaa33")) +
+  xlab(" ") +
+  ylab("Accuracy") +
+  coord_flip() +
+  theme_bw(base_size = 8)
+```
+
+- The standard deviation when taking 500 sets of measurements (what we want to estimate) is `r sprintf("%0.5f", sd(sim_results_me$accuracy))`.
+- The standard deviation when performing Gaussian perturbation on one set of measurements is `r sprintf("%0.5f", sd(sim_results_noisy$accuracy))`.
+
+## Toy Example: A Decision Boundary for Each Perturbed Dataset
+
+```{r echo=F}
+plot_data_with_decision_boundaries(noisy, sim_results_noisy)
+```
+
+## Toy Example: Soft Classification
+
+Averaging predictions over those 500 decision boundaries yields a softened classifier:
+
+```{r}
+classified <- soft_classify_set(sim_results_noisy, noisy)
+
+ggplot(classified) +
+  geom_point(aes(x = x1, y = x2, color = p)) +
+  scale_color_gradient(low = "#cc0011", high = "#223399") +
+  xlim(-10, 10) +
+  ylim(-10, 10)
+
+# KILL THE TOY
+detach(toy)
+```
+
+# Astronomy Application
+
+# Discussion
 
 # Bib
 
