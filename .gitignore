@@ -35,3 +35,6 @@ Presentation/slides_files/**
 
 # predictions
 Data/preds_500.csv
+
+# compiled final report
+Final Report/report.pdf
