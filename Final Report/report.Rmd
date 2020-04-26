@@ -3,7 +3,7 @@ title: "STAT 557 Final Project Report"
 author: "Sarah Shy, Jonathan Hehir"
 date: "4/25/2020"
 output:
-  pdf_document:
+  bookdown::pdf_document2:
     toc: true
     toc_depth: 1
 ---
