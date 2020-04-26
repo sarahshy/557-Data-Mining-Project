@@ -30,7 +30,40 @@ Game Plan (to be deeleeted):
 
 # Introduction
 
-Measurement error is the difference between a measured quantity and its true value.
+Measurement error is the difference between a measured quantity and its true value [1]. Generally, several measurements on the same quantity on the same subject will not be the same. This variation may arise due to variation in the measurement process, the inherent variation in the subject, or both [2]. In this report, we focus on the former, assuming that the true value of a quantity of interest is fixed. Furthermore, we rule out systematic error, which may arise with inconsistent calibration, and focus only on random error.
 
+In many statistical scenarios, we assume that our data are perfect measurements of a quantity of interest. This often false assumption can lead to bias in parameter estimation for statistical models, loss of power for detecting interesting variable relationships, and masking of features of the data [3]. It is therefore crutial for us to investigate how measurement error influences modeling and to quantify uncertainty in statistical inference and estimation
+
+In many contexts, we know the variation of our measurement error. This is particularly true in various scientific and engineering settings, where the random error of a measuring device can be measured by the manufacturer or the scientist. In this paper, we present a simulated toy example and a real-world application to Astronomy data
+
+
+# Gaussian Perturbation Pipeline
+
+![Gaussian perturbation pipeline for uncertainty quantification](../Presentation/pipeline.png)
+
+# Toy Example
+
+We generated data representing true values of a sample from the following
+
+$$
+\begin{aligned}
+\mathbf X_{1}, \dots, \mathbf X_{250} &\sim \text{i.i.d. } \mathcal N \left( \begin{bmatrix} 1 \\ 2 \end{bmatrix}, \begin{bmatrix} 3 & -0.5 \\ -0.5 & 2 \end{bmatrix} \right) \\
+\mathbf X_{251}, \dots, \mathbf X_{500} &\sim \text{i.i.d. }\mathcal N \left( \begin{bmatrix} -1 \\ -1 \end{bmatrix}, \begin{bmatrix} 4 & -1 \\ -1 & 1 \end{bmatrix} \right) \\
+\end{aligned}
+$$
+
+Additionally, let us assume that the measurement error follows
+
+$$
+\varepsilon_i &\sim \text{i.i.d. } \mathcal N \left( \begin{bmatrix} 0 \\ 0 \end{bmatrix}, \begin{bmatrix} 1 & 0 \\ 0 & 3 \end{bmatrix} \right)
+$$
+
+That is, the values we observe each time we take a measurement of $\mathbf X$ is $\mathbf U = \mathbf X + \varepsilon$
 
 # Bib
+
+[1] Dodge 2003 The Oxford Dictionary of Statistical Terms
+
+[2] Bland, Altman 1996. Statistics Notes: Measurement error. BMJ.
+
+[3] Carroll, Ruppert idk year. Measurement Error in Nonlinear Models: A Modern Perspective, Second Edition
