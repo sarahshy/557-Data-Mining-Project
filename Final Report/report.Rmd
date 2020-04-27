@@ -35,7 +35,7 @@ library(tidyverse)
 library(knitr)
 ```
 
-
+<!--
 Game Plan (to be deeleeted):
 
 * Abstract
@@ -53,6 +53,8 @@ Game Plan (to be deeleeted):
 * Limitations
 * Future Directions and Related Work
 * Bib
+
+-->
 
 # Introduction
 
