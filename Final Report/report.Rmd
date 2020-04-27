@@ -5,6 +5,7 @@ date: "Spring 2020"
 geometry: margin=1in
 fontfamily: charter
 bibliography: sources.bib
+csl: american-statistical-association.csl
 #classoption:
 #  - twocolumn
 numbersections: true
