@@ -1,25 +1,43 @@
 ---
 title: "STAT 557 Final Project Report"
 author: "Sarah Shy, Jonathan Hehir"
-date: "4/25/2020"
+date: "Spring 2020"
+geometry: margin=1in
+fontfamily: charter
+bibliography: sources.bib
+csl: american-statistical-association.csl
+#classoption:
+#  - twocolumn
+numbersections: true
 output:
   bookdown::pdf_document2:
     toc: true
     toc_depth: 1
+    template: null
+abstract: |
+  This is a test. This is a test. This is a test. This is a test. This is a test.
+  This is a test. This is a test. This is a test. This is a test. This is a test.
 ---
+
+
+\setlength\abovedisplayskip{0pt}
 
 ```{r global_options, include = FALSE}
 knitr::opts_chunk$set(echo = FALSE,
                       warning = FALSE,
-                      message = FALSE)
+                      message = FALSE,
+                      fig.width = 5,
+                      fig.height = 3)
 ```
 
 ```{r}
 # Front matter
 library(cowplot)
+library(tidyverse)
+library(knitr)
 ```
 
-
+<!--
 Game Plan (to be deeleeted):
 
 * Abstract
@@ -38,15 +56,15 @@ Game Plan (to be deeleeted):
 * Future Directions and Related Work
 * Bib
 
-# Abstract
+-->
 
 # Introduction
 
-Measurement error is the difference between a measured quantity and its true value [1]. Generally, several measurements on the same quantity on the same subject will not be the same. This variation may arise due to variation in the measurement process, the inherent variation in the subject, or both [2]. In this report, we focus on the former, assuming that the true value of a quantity of interest is fixed. Furthermore, we rule out systematic error, which may arise with inconsistent calibration, and focus only on random error.
+Measurement error is the difference between a measured quantity and its true value [@dodge2006oxford]. Generally, several measurements on the same quantity on the same subject will not be the same. This variation may arise due to variation in the measurement process, the inherent variation in the subject, or both [@bland1996statistics]. In this report, we focus on the former, assuming that the true value of a quantity of interest is fixed. Furthermore, we rule out systematic error, which may arise with inconsistent calibration, and focus only on random error.
 
-In many statistical scenarios, we assume that our data are perfect measurements of a quantity of interest. This often false assumption can lead to bias in parameter estimation for statistical models, loss of power for detecting interesting variable relationships, and masking of features of the data [3]. It is therefore crutial for us to investigate how measurement error influences modeling and to quantify uncertainty in statistical inference and estimation
+In many statistical scenarios, we assume that our data are perfect measurements of a quantity of interest. This often false assumption can lead to bias in parameter estimation for statistical models, loss of power for detecting interesting variable relationships, and masking of features of the data [@carroll2006measurement]. It is therefore crutial for us to investigate how measurement error influences modeling and to quantify uncertainty in statistical inference and estimation
 
-In many contexts, we know the variation of our measurement error. This is particularly true in various scientific and engineering settings, where the random error of a measuring device can be measured by the manufacturer or the scientist. In other settings, when the measurement error is unknown, but one can take repeated measurements on each subject, we can estimate the within-subject variation [2]. In this paper, we present a simulated toy example and a real-world application to Astronomy data
+In many contexts, we know the variation of our measurement error. This is particularly true in various scientific and engineering settings, where the random error of a measuring device can be measured by the manufacturer or the scientist. In other settings, when the measurement error is unknown, but one can take repeated measurements on each subject, we can estimate the within-subject variation [@bland1996statistics]. In this paper, we present a simulated toy example and a real-world application to Astronomy data
 
 
 # Gaussian Perturbation Pipeline
@@ -54,6 +72,8 @@ In many contexts, we know the variation of our measurement error. This is partic
 ![Gaussian perturbation pipeline for uncertainty quantification](../Presentation/pipeline.png)
 
 # Toy Example
+
+## Toy Example: Set up
 
 We generated data representing true values of a sample from the following
 
@@ -92,10 +112,94 @@ plt2 <- plot_data_with_error(noisy)
 plot_grid(plt1, plt2)
 ```
 
-# Bib
+## Toy Example: Linear Classifier on True Data and on Noisy Data
 
-[1] Dodge 2003 The Oxford Dictionary of Statistical Terms
+Fitting a linear SVM (tuned using 10-fold CV) to the above yields the following accuracies:
 
-[2] Bland, Altman 1996. Statistics Notes: Measurement error. BMJ.
+```{r include=F}
+d_acc <- 100*svm_metrics(data)$accuracy
+n_acc <- 100*svm_metrics(noisy)$accuracy
 
-[3] Carroll, Ruppert idk year. Measurement Error in Nonlinear Models: A Modern Perspective, Second Edition
+kable(tribble(~Dataset, ~Accuracy,
+              "True", d_acc,
+              "Measured", n_acc),
+      "latex", digits = 4)
+```
+
+As expected, the linear classifier can better separate the classes in the true data. Some blah blah on this? In reality, we only have access to the noisy data. Can we trust this accuracy estimate having only observed one set of noisy measurements?
+
+## Toy Example: 500 measurements
+
+Using the same original dataset, we simulate taking noisy measurements and fitting the SVM 500 times to obtain the following distribution of classifier accuracy:
+
+```{r cache=T, echo=F}
+# simulate measurement error on one clean observation
+sim_results_me <- run_simulations(data, 500, 1)
+
+# simulate measurement error on one noisy observation
+sim_results_noisy <- run_simulations(noisy, 500, 1)
+
+#ggplot(sim_results_me) + geom_histogram(aes(x = accuracy), binwidth = 0.01, color = #"#000000", fill= "#ffaa33", size = .25) +
+#  xlab("Accuracy") +
+#  ylab("Frequency") +
+#  theme_bw(base_size = 8)
+
+ggplot(sim_results_me) + geom_boxplot(aes(y = accuracy), fill = "#ffaa33", size = 0.25) +
+  ylab("Accuracy") +
+  coord_flip() +
+  theme_bw(base_size = 8) +
+  theme(axis.text.y = element_blank())
+
+detach(toy)
+```
+
+That is, we might observe this distribution if we could take 500 sets of measurements.
+
+## Toy Example: Estimating Variance Without the True Values
+
+```{r echo=F}
+attach(toy)
+
+ggplot(bind_rows(
+  sim_results_me %>% add_column(observed = "500 Sets of Measurements"),
+  sim_results_noisy %>% add_column(observed = "500 Perturbations of 1 Set of Measurements")
+)) +
+  geom_boxplot(aes(x = observed, y = accuracy), fill = c("#999999", "#ffaa33")) +
+  xlab(" ") +
+  ylab("Accuracy") +
+  coord_flip() +
+  theme_bw(base_size = 8)
+```
+
+- The standard deviation when taking 500 sets of measurements (what we want to estimate) is `r sprintf("%0.5f", sd(sim_results_me$accuracy))`.
+- The standard deviation when performing Gaussian perturbation on one set of measurements is `r sprintf("%0.5f", sd(sim_results_noisy$accuracy))`.
+
+## Toy Example: A Decision Boundary for Each Perturbed Dataset
+
+```{r echo=F}
+plot_data_with_decision_boundaries(noisy, sim_results_noisy)
+```
+
+## Toy Example: Soft Classification
+
+Averaging predictions over those 500 decision boundaries yields a softened classifier:
+
+```{r}
+classified <- soft_classify_set(sim_results_noisy, noisy)
+
+ggplot(classified) +
+  geom_point(aes(x = x1, y = x2, color = p)) +
+  scale_color_gradient(low = "#cc0011", high = "#223399") +
+  xlim(-10, 10) +
+  ylim(-10, 10)
+
+# KILL THE TOY
+detach(toy)
+```
+
+# Astronomy Application
+
+# Discussion
+
+# Bibliography
+
