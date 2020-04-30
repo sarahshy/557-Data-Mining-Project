@@ -1,12 +1,26 @@
 ---
 title: "STAT 557 Final Project Report"
 author: "Sarah Shy, Jonathan Hehir"
-date: "4/25/2020"
+date: "Spring 2020"
+geometry: margin=1in
+fontfamily: charter
+bibliography: sources.bib
+csl: american-statistical-association.csl
+#classoption:
+#  - twocolumn
+numbersections: true
 output:
-  pdf_document:
+  bookdown::pdf_document2:
     toc: true
     toc_depth: 1
+    template: null
+abstract: |
+  This is a test. This is a test. This is a test. This is a test. This is a test.
+  This is a test. This is a test. This is a test. This is a test. This is a test.
 ---
+
+
+\setlength\abovedisplayskip{0pt}
 
 ```{r global_options, include = FALSE}
 knitr::opts_chunk$set(echo = FALSE,
@@ -19,9 +33,11 @@ knitr::opts_chunk$set(echo = FALSE,
 ```{r}
 # Front matter
 library(cowplot)
+library(tidyverse)
+library(knitr)
 ```
 
-
+<!--
 Game Plan (to be deeleeted):
 
 * Abstract
@@ -40,15 +56,15 @@ Game Plan (to be deeleeted):
 * Future Directions and Related Work
 * Bib
 
-# Abstract
+-->
 
 # Introduction
 
-Measurement error is the difference between a measured quantity and its true value [1]. Generally, several measurements on the same quantity on the same subject will not be the same. This variation may arise due to variation in the measurement process, the inherent variation in the subject, or both [2]. In this report, we focus on the former, assuming that the true value of a quantity of interest is fixed. Furthermore, we rule out systematic error, which may arise with inconsistent calibration, and focus only on random error.
+Measurement error is the difference between a measured quantity and its true value [@dodge2006oxford]. Generally, several measurements on the same quantity on the same subject will not be the same. This variation may arise due to variation in the measurement process, the inherent variation in the subject, or both [@bland1996statistics]. In this report, we focus on the former, assuming that the true value of a quantity of interest is fixed. Furthermore, we rule out systematic error, which may arise with inconsistent calibration, and focus only on random error.
 
-In many statistical scenarios, we assume that our data are perfect measurements of a quantity of interest. This often false assumption can lead to bias in parameter estimation for statistical models, loss of power for detecting interesting variable relationships, and masking of features of the data [3]. It is therefore crutial for us to investigate how measurement error influences modeling and to quantify uncertainty in statistical inference and estimation
+In many statistical scenarios, we assume that our data are perfect measurements of a quantity of interest. This often false assumption can lead to bias in parameter estimation for statistical models, loss of power for detecting interesting variable relationships, and masking of features of the data [@carroll2006measurement]. It is therefore crutial for us to investigate how measurement error influences modeling and to quantify uncertainty in statistical inference and estimation
 
-In many contexts, we know the variance of our measurement error. This is particularly true in various scientific and engineering settings, where the random error of a measuring device can be measured by the manufacturer or the scientist. In other settings, when the measurement error is unknown, but one can take repeated measurements on each subject, we can estimate the within-subject variation [2]. In this paper, we discuss how we can use the known or estimated variance of measurement error to study the stability of a classification algorithm and quantify uncertainty in classification results. This report summarizes our exploratory work in this area of research. While existing research on uncertainty quantification is largely algorithm specific, we're exploring a general pipeline for quantifying uncertainty with any classifier. This would allow us to better compare uncertainty and stability across multiple classifiers.
+In many contexts, we know the variation of our measurement error. This is particularly true in various scientific and engineering settings, where the random error of a measuring device can be measured by the manufacturer or the scientist. In other settings, when the measurement error is unknown, but one can take repeated measurements on each subject, we can estimate the within-subject variation [@bland1996statistics]. In this paper, we discuss how we can use the known or estimated variance of measurement error to study the stability of a classification algorithm and quantify uncertainty in classification results. This report summarizes our exploratory work in this area of research. While existing research on uncertainty quantification is largely algorithm specific, we're exploring a general pipeline for quantifying uncertainty with any classifier. This would allow us to better compare uncertainty and stability across multiple classifiers.
 
 In Section \@ref(pipeline), we introduce the Gaussia perturbation pipeline for stability and uncertainty quantification. In Section 3
 
@@ -107,12 +123,12 @@ Fitting a linear SVM (tuned using 10-fold CV) to the above yields the following 
 ```{r include=F}
 d_acc <- 100*svm_metrics(data)$accuracy
 n_acc <- 100*svm_metrics(noisy)$accuracy
-```
 
-Dataset  | Accuracy
----------|------------
-True     | `r sprintf("%0.1f", d_acc)`%
-Measured | `r sprintf("%0.1f", n_acc)`%
+kable(tribble(~Dataset, ~Accuracy,
+              "True", d_acc,
+              "Measured", n_acc),
+      "latex", digits = 4)
+```
 
 As expected, the linear classifier can better separate the classes in the true data. Some blah blah on this? In reality, we only have access to the noisy data. Can we trust this accuracy estimate having only observed one set of noisy measurements?
 
@@ -191,12 +207,11 @@ Classification method have been important tools in Astronomy for decades, and re
 
 # Discussion
 
-# Bib
+# Bibliography
 
-[1] Dodge 2003 The Oxford Dictionary of Statistical Terms
-
-[2] Bland, Altman 1996. Statistics Notes: Measurement error. BMJ.
-
+<<<<<<< HEAD
 [3] Carroll, Ruppert idk year. Measurement Error in Nonlinear Models: A Modern Perspective, Second Edition
 
 [4] Kurtz, 1988. Astronomical Object Classification
+=======
+>>>>>>> 07887b9de11b35e58d65c2121104345ab55984ed
