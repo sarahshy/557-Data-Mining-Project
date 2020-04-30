@@ -4,6 +4,7 @@ author: "Sarah Shy, Jonathan Hehir"
 date: "Spring 2020"
 geometry: margin=1in
 fontfamily: charter
+fontsize: 12pt
 bibliography: sources.bib
 csl: american-statistical-association.csl
 #classoption:
@@ -66,16 +67,13 @@ In many statistical scenarios, we assume that our data are perfect measurements 
 
 In many contexts, we know the variation of our measurement error. This is particularly true in various scientific and engineering settings, where the random error of a measuring device can be measured by the manufacturer or the scientist. In other settings, when the measurement error is unknown, but one can take repeated measurements on each subject, we can estimate the within-subject variation [@bland1996statistics]. In this paper, we discuss how we can use the known or estimated variance of measurement error to study the stability of a classification algorithm and quantify uncertainty in classification results. This report summarizes our exploratory work in this area of research. While existing research on uncertainty quantification is largely algorithm specific, we're exploring a general pipeline for quantifying uncertainty with any classifier. This would allow us to better compare uncertainty and stability across multiple classifiers.
 
-In Section \@ref(pipeline), we introduce the Gaussia perturbation pipeline for stability and uncertainty quantification. In Section 3
-
-We present a simulated toy example and a real-world application to Astronomy data
-
+In Section \@ref(pipeline), we introduce the Gaussian perturbation pipeline for stability and uncertainty quantification. In Section \@ref(toyexample), we apply the pipeline on simulated toy data. In Section \@ref(astro), we present a real-world application to Astronomy data.
 
 # Gaussian Perturbation Pipeline {#pipeline}
 
 ![Gaussian perturbation pipeline for uncertainty quantification](../Presentation/pipeline.png)
 
-# Toy Example
+# Toy Example {#toyexample}
 
 ## Toy Example: Set up
 
@@ -201,17 +199,13 @@ ggplot(classified) +
 detach(toy)
 ```
 
-# Astronomy Application
+# Astronomy Application {#astro}
 
 Classification method have been important tools in Astronomy for decades, and remain essential in studying the night sky [4]. 
 
 # Discussion
 
 # Bibliography
-
-<<<<<<< HEAD
-[3] Carroll, Ruppert idk year. Measurement Error in Nonlinear Models: A Modern Perspective, Second Edition
+<!-- pls don't delete yet. I'll get to it, but I need to store it somewhere for now -->
 
 [4] Kurtz, 1988. Astronomical Object Classification
-=======
->>>>>>> 07887b9de11b35e58d65c2121104345ab55984ed
