@@ -27,7 +27,7 @@ abstract: |
 knitr::opts_chunk$set(echo = FALSE,
                       warning = FALSE,
                       message = FALSE,
-                      fig.width = 5,
+                      fig.width = 6,
                       fig.height = 3)
 ```
 
@@ -63,21 +63,17 @@ Game Plan (to be deeleeted):
 
 Measurement error is the difference between a measured quantity and its true value [@dodge2006oxford]. Generally, several measurements on the same quantity on the same subject will not be the same. This variation may arise due to variation in the measurement process, the inherent variation in the subject, or both [@bland1996statistics]. In this report, we focus on the former, assuming that the true value of a quantity of interest is fixed. Furthermore, we rule out systematic error, which may arise with inconsistent calibration, and focus only on random error.
 
-In many statistical scenarios, we assume that our data are perfect measurements of a quantity of interest. This often false assumption can lead to bias in parameter estimation for statistical models, loss of power for detecting interesting variable relationships, and masking of features of the data [@carroll2006measurement]. It is therefore crutial for us to investigate how measurement error influences modeling and to quantify uncertainty in statistical inference and estimation
+In many statistical scenarios, we assume that our data are perfect measurements of a quantity of interest. This often false assumption can lead to bias in parameter estimation for statistical models, loss of power for detecting interesting variable relationships, and masking of features of the data [@carroll2006measurement]. It is therefore crutial for us to investigate how measurement error influences modeling and to quantify uncertainty in statistical inference and estimation.
 
-In many contexts, we know the variation of our measurement error. This is particularly true in various scientific and engineering settings, where the random error of a measuring device can be measured by the manufacturer or the scientist. In other settings, when the measurement error is unknown, but one can take repeated measurements on each subject, we can estimate the within-subject variation [@bland1996statistics]. In this paper, we discuss how we can use the known or estimated variance of measurement error to study the stability of a classification algorithm and quantify uncertainty in classification results. This report summarizes our exploratory work in this area of research. While existing research on uncertainty quantification is largely algorithm specific, we're exploring a general pipeline for quantifying uncertainty with any classifier. This would allow us to better compare uncertainty and stability across multiple classifiers.
+In many contexts, we know the variation of our measurement error. This is particularly true in various scientific and engineering settings, where the random error of a measuring device can be measured by the manufacturer or the scientist. In other settings, when the measurement error is unknown, but one can take repeated measurements on each subject, we can estimate the within-subject variation [@bland1996statistics]. In this paper, we focus on the use of known measurement error, although the results would apply in a similar fashion to estimated measurement error. 
 
-In Section \@ref(pipeline), we introduce the Gaussian perturbation pipeline for stability and uncertainty quantification. In Section \@ref(toyexample), we apply the pipeline on simulated toy data. In Section \@ref(astro), we present a real-world application to Astronomy data.
+The goal of this paper is to assess the stability of a classification algorithm and quantify uncertainty in classification results in the presence of measurement error. While existing research on uncertainty quantification is largely algorithm-specific, our work explores a general pipeline for quantifying uncertainty with any classifier. This would allow us to better compare uncertainty, stability, and overall performance across multiple classifiers. This report summarizes our exploratory work in this area of research.
 
-# Gaussian Perturbation Pipeline {#pipeline}
+We begin by motivating the subject with a toy example in Section \@ref(motivation). In Section \@ref(pipeline), we introduce the Gaussian perturbation pipeline for stability and uncertainty quantification. In Section \@ref(toyexample), we apply the pipeline to the previously simulated toy data. In Section \@ref(astro), we present a real-world application to Astronomy data. Finally, we discuss the results and future direction in Section \@ref(discussion).
 
-![Gaussian perturbation pipeline for uncertainty quantification](../Presentation/pipeline.png)
+# Motivation {#motivation}
 
-# Toy Example {#toyexample}
-
-## Toy Example: Set up
-
-We generated data representing true values of a sample from the following
+In order to illustrate the relevant issues that arise in the presence of measurement error, we begin by introducing a toy example. We will use a set of data representing true values belonging to two classes by sampling 250 points each from two bivariate normal distributions:
 
 $$
 \begin{aligned}
@@ -86,15 +82,15 @@ $$
 \end{aligned}
 $$
 
-Additionally, let us assume that the measurement error follows
+We will further impose measurement error on these values, taking the following form:
 
 $$
-\varepsilon_i \sim \text{i.i.d. } \mathcal N \left( \begin{bmatrix} 0 \\ 0 \end{bmatrix}, \begin{bmatrix} 1 & 0 \\ 0 & 3 \end{bmatrix} \right)
+\varepsilon_i \sim \text{i.i.d. } \mathcal N \left( \begin{bmatrix} 0 \\ 0 \end{bmatrix}, \begin{bmatrix} 1 & 0 \\ 0 & 3 \end{bmatrix} \right), \quad i = 1, \dots, 500
 $$
 
-That is, the values we observe each time we take a measurement of $\mathbf X$ is $\mathbf U = \mathbf X + \varepsilon$.
+To make clear that our true values are assumed to be fixed, we will refer to the generated $\mathbf X$ values from above in lowercase. The true values in our toy example are thus $\mathbf x_1, \dots \mathbf x_{500}$. The measured values corresponding to these observations are $\mathbf U_1, \dots \mathbf U_{500} = \mathbf x_1 + \varepsilon_1, \dots, \mathbf x_{500} + \varepsilon_{500}$.
 
-The true values and one instance of observed values are shown in Figure \@ref(fig:trueData).
+The true $\mathbf x$ values and the measured $\mathbf U$ values are shown in Figure \@ref(fig:trueData).
 
 ```{r echo=F, warning=F}
 toy <- new.env()
@@ -105,14 +101,33 @@ data <- make_base_data()
 #kable(data %>% select(x1, x2) %>% add_column(error1 = 1, error2 = 3) %>% head(4), digits = 3)
 ```
 
-```{r trueData, fig.cap = "The True Data"}
+```{r trueData, fig.cap = "True Data (left) and Measured Data (right)"}
 plt1 <- plot_data_with_error(data)
 
 noisy <- noisify_data(data)
 plt2 <- plot_data_with_error(noisy)
 
-plot_grid(plt1, plt2)
+plot_grid(
+  plt1 +
+    ggtitle("True Values") +
+    theme(legend.position = "none"),
+  plt2 +
+    ggtitle("Measured Values"),
+  rel_widths = c(1, 1.3)
+)
 ```
+
+Clearly, the presence of measurement error here will affect our ability to discern between the two classes. What was a fairly separable set of classes is made more murky by the measurement error. In terms of classifier accuracy, we can reasonably expect any classifier to suffer here.
+
+TODO
+
+# Gaussian Perturbation Pipeline {#pipeline}
+
+![Gaussian perturbation pipeline for uncertainty quantification](../Presentation/pipeline.png)
+
+# Application: Toy Example {#toyexample}
+
+## Toy Example: Set up
 
 ## Toy Example: Linear Classifier on True Data and on Noisy Data
 
