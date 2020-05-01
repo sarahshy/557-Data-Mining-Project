@@ -119,13 +119,29 @@ plot_grid(
 
 Clearly, the presence of measurement error here will affect our ability to discern between the two classes. What was a fairly separable set of classes is made more murky by the measurement error. In terms of classifier accuracy, we can reasonably expect any classifier to suffer here.
 
-TODO
+<!--
+
+TODO:
+
+My plan at the moment is to plot the single decision boundary resulting from a linear SVM fit to the measured values. Then describe the accuracy of this vs. against the true values. (Of course, it's worse!) Then I will pose the question of what if we trained against different measurements on the same data? What if we tested against different measurements of the same data? This is the source of variation and instability that we're concerned about.
+
+From here, we can introduce the pipeline.
+
+-->
 
 # Gaussian Perturbation Pipeline {#pipeline}
 
 ![Gaussian perturbation pipeline for uncertainty quantification](../Presentation/pipeline.png)
 
 # Application: Toy Example {#toyexample}
+
+<!--
+
+Then we should return to the toy example. Showing box plots, etc. This is hardly theoretical justification, but it's something!
+
+Once we're sick of toys, we can move on to stars and stuff.
+
+-->
 
 ## Toy Example: Set up
 
@@ -214,7 +230,7 @@ ggplot(classified) +
 detach(toy)
 ```
 
-# Astronomy Application {#astro}
+# Application: Astronomy Data {#astro}
 
 Classification method have been important tools in Astronomy for decades, and remain essential in studying the night sky [@kurtz1988astronomical]. 
 
