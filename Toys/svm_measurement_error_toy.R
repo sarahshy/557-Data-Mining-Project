@@ -56,11 +56,11 @@ plot_data_with_error <- function(data) {
                    alpha = 0.2)
 }
 
-plot_data_with_decision_boundaries <- function(data, results) {
+plot_data_with_decision_boundaries <- function(data, results, alpha = 0.1) {
   intercepts <- -results$beta_2^-1 * results$beta_0
   slopes <- -results$beta_2^-1 * results$beta_1
   plot_data(data) +
-    geom_abline(intercept = intercepts, slope = slopes, alpha = 0.1, color = "#999999")
+    geom_abline(intercept = intercepts, slope = slopes, alpha = alpha, color = "#999999")
 }
 
 soft_classify <- function(results, x1, x2) {

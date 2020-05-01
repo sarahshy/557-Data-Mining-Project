@@ -36,6 +36,7 @@ knitr::opts_chunk$set(echo = FALSE,
 library(cowplot)
 library(tidyverse)
 library(knitr)
+set.seed(3)
 ```
 
 <!--
@@ -117,7 +118,30 @@ plot_grid(
 )
 ```
 
-Clearly, the presence of measurement error here will affect our ability to discern between the two classes. What was a fairly separable set of classes is made more murky by the measurement error. In terms of classifier accuracy, we can reasonably expect any classifier to suffer here.
+```{r}
+svm_true <- svm_metrics(data)
+svm_measured <- svm_metrics(noisy)
+```
+
+Consider the case of fitting a linear SVM to the set of measured values above. We split our values into training and test sets, then use 10-fold cross-validation in the training set to determine the optimal cost parameter of $\lambda = 0.18$. The fitted model is shown in figure \@ref(fig:singleSvm), and its prediction accuracy in the test set is `r sprintf("%0.3f", svm_measured$accuracy)`. By comparison, the same exact process run against the true values instead of the measured values yields an accuracy of `r sprintf("%0.3f", svm_true$accuracy)`.
+
+```{r singleSvm, fig.cap = "Linear SVM Fit to Measured Values"}
+plot_data_with_decision_boundaries(noisy, svm_measured, alpha = 1)
+```
+
+The discrepancy in accuracy is no surprise. Clearly, the presence of measurement error will affect our ability to discern between the two classes. But remember that our test set consists of measured values. Suppose we had tested with diffrent measurements of the same underlying true values. Might we observe different accuracy? Similarly, we trained this model on measured values. Suppose we had trained the model on a different set of measurements. This would almost certainly shift our decision boundary.
+
+This raises two fundamental questions: How widely does our decision boundary shift under the influence of measurement error? How widely does the performance of our classifier (as measured by metrics like accuracy, sensitivity, specificity, etc.) vary in the presence of measurement error?
+
+In the case of a toy example like this, we can address these questions by taking repeated measurements of the same observations, then evaluating the spectrum of decision boundaries and performance metrics that result from repeatedly fitting classifiers. More concretely, consider taking $m$ sets of measurements:
+
+$$
+\begin{aligned}
+\mathbf U^{(1)}_i &= \mathbf x_i + \varepsilon^{(1)}_i, \quad i = 1, \dots, 500 \\
+& \quad \quad \vdots \\
+\mathbf U^{(m)}_i &= \mathbf x_i + \varepsilon^{(m)}_i, \quad i = 1, \dots, 500
+\end{aligned}
+$$
 
 <!--
 
