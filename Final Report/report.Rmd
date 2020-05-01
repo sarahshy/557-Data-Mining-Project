@@ -234,6 +234,14 @@ detach(toy)
 
 Classification method have been important tools in Astronomy for decades, and remain essential in studying the night sky [@kurtz1988astronomical]. 
 
+<!--
+
+JH: One more potentially annoying question here:
+
+Can we apply this on more than just random forest for the sake of the paper? Like we can do RF, SVM, and logistic or something and then compare them? We're arguing in the intro that we want to be able to use this to compare classifiers, but right now, we're not actually comparing any classifiers.
+
+-->
+
 # Discussion
 
 # Bibliography
