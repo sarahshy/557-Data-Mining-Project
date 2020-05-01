@@ -133,27 +133,22 @@ The discrepancy in accuracy is no surprise. Clearly, the presence of measurement
 
 This raises two fundamental questions: How widely does our decision boundary shift under the influence of measurement error? How widely does the performance of our classifier (as measured by metrics like accuracy, sensitivity, specificity, etc.) vary in the presence of measurement error?
 
-In the case of a toy example like this, we can address these questions by taking repeated measurements of the same observations, then evaluating the spectrum of decision boundaries and performance metrics that result from repeatedly fitting classifiers. More concretely, consider taking $m$ sets of measurements:
+In the case of a toy example like this, we can address these questions by taking repeated measurements of the same observations, then evaluating the spectrum of decision boundaries and performance metrics that result from repeatedly fitting classifiers. More concretely, consider taking $M$ sets of measurements:
 
 $$
 \begin{aligned}
 \mathbf U^{(1)}_i &= \mathbf x_i + \varepsilon^{(1)}_i, \quad i = 1, \dots, 500 \\
 & \quad \quad \vdots \\
-\mathbf U^{(m)}_i &= \mathbf x_i + \varepsilon^{(m)}_i, \quad i = 1, \dots, 500
+\mathbf U^{(M)}_i &= \mathbf x_i + \varepsilon^{(M)}_i, \quad i = 1, \dots, 500
 \end{aligned}
 $$
 
-<!--
+From these $M$ sets of measurements, you can effectively derive Monte Carlo estimates of your preferred metrics, decision boundaries, etc. by simple observation of the distribution of the relevant quantities over the $M$ sets of measurements. Unfortunately, this method is not useful in a broader context, as we generally do not have the capacity to take large numbers of measurements on the same observations, and we do not know the true $\mathbf x_i$ values from which to simulate repeated measurements. 
 
-TODO:
-
-My plan at the moment is to plot the single decision boundary resulting from a linear SVM fit to the measured values. Then describe the accuracy of this vs. against the true values. (Of course, it's worse!) Then I will pose the question of what if we trained against different measurements on the same data? What if we tested against different measurements of the same data? This is the source of variation and instability that we're concerned about.
-
-From here, we can introduce the pipeline.
-
--->
 
 # Gaussian Perturbation Pipeline {#pipeline}
+
+**TODO:** Since we can't do the above, we'll do this instead:
 
 ![Gaussian perturbation pipeline for uncertainty quantification](../Presentation/pipeline.png)
 
@@ -166,28 +161,7 @@ Then we should return to the toy example. Showing box plots, etc. This is hardly
 Once we're sick of toys, we can move on to stars and stuff.
 
 -->
-
-## Toy Example: Set up
-
-## Toy Example: Linear Classifier on True Data and on Noisy Data
-
-Fitting a linear SVM (tuned using 10-fold CV) to the above yields the following accuracies:
-
-```{r include=F}
-d_acc <- 100*svm_metrics(data)$accuracy
-n_acc <- 100*svm_metrics(noisy)$accuracy
-
-kable(tribble(~Dataset, ~Accuracy,
-              "True", d_acc,
-              "Measured", n_acc),
-      "latex", digits = 4)
-```
-
-As expected, the linear classifier can better separate the classes in the true data. Some blah blah on this? In reality, we only have access to the noisy data. Can we trust this accuracy estimate having only observed one set of noisy measurements?
-
-## Toy Example: 500 measurements
-
-Using the same original dataset, we simulate taking noisy measurements and fitting the SVM 500 times to obtain the following distribution of classifier accuracy:
+**TODO:** Using the same original dataset, we simulate taking noisy measurements and fitting the SVM 500 times to obtain the following distribution of classifier accuracy:
 
 ```{r cache=T, echo=F}
 # simulate measurement error on one clean observation
@@ -212,8 +186,6 @@ detach(toy)
 
 That is, we might observe this distribution if we could take 500 sets of measurements.
 
-## Toy Example: Estimating Variance Without the True Values
-
 ```{r echo=F}
 attach(toy)
 
@@ -231,13 +203,9 @@ ggplot(bind_rows(
 - The standard deviation when taking 500 sets of measurements (what we want to estimate) is `r sprintf("%0.5f", sd(sim_results_me$accuracy))`.
 - The standard deviation when performing Gaussian perturbation on one set of measurements is `r sprintf("%0.5f", sd(sim_results_noisy$accuracy))`.
 
-## Toy Example: A Decision Boundary for Each Perturbed Dataset
-
 ```{r echo=F}
 plot_data_with_decision_boundaries(noisy, sim_results_noisy)
 ```
-
-## Toy Example: Soft Classification
 
 Averaging predictions over those 500 decision boundaries yields a softened classifier:
 
@@ -267,6 +235,8 @@ Can we apply this on more than just random forest for the sake of the paper? Lik
 -->
 
 # Discussion
+
+As you can see, our method lacks theoretical justification, but it is otherwise incredible. If you give it a try, I think you'll find this method is worthy of an A+.
 
 # Bibliography
 
