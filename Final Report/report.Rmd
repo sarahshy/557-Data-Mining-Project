@@ -36,6 +36,9 @@ knitr::opts_chunk$set(echo = FALSE,
 library(cowplot)
 library(tidyverse)
 library(knitr)
+library(data.table)
+library(knitr)
+library(kableExtra)
 set.seed(3)
 theme_set(theme_bw(base_size = 10))
 ```
@@ -218,7 +221,83 @@ detach(toy)
 
 # Application: Astronomy Data {#astro}
 
-Classification method have been important tools in Astronomy for decades, and remain essential in studying the night sky [@kurtz1988astronomical]. 
+Classification method have been important tools in Astronomy for decades, and continue to be essential in studying the night sky [@kurtz1988astronomical]. With ever-increasing volumes of publicly available data, Astronomy is an area of research that is particularly well-suited for studying big data algorithms.
+
+We acquired our data from the Sloan Digital Sky Survey (SDSS) Data Release #12. The SDSS is one of the largest astronomical surveys, scanning over a third of the night sky and recording nearly 1 billion objects to date.
+
+## Astro Results: Confidence intervals
+
+### Random Forest
+
+```{r, include = F}
+# reference RF
+load("../Data/reference_rf_measures.RData")
+```
+
+```{r, echo = F}
+# perturbed RF
+meas <- fread("../Data/measures500.csv")
+meas.sd <- apply(meas, 2, sd)
+
+lower <- (rf.meas - 2*meas.sd) %>% round(4)
+upper <- (rf.meas + 2*meas.sd) %>% round(4)
+
+sprintf("(%0.4f, %0.4f)", lower, pmin(1, upper)) %>%
+  matrix(nrow = length(rf.meas), dimnames = list(names(rf.meas), "95% CI")) %>%
+  kable("latex", booktabs = T) %>%
+  kable_styling(font_size = 10)
+
+#quantile(meas$AUC, 0.025)
+#quantile(meas$AUC, 0.975)
+```
+
+### Logistic Regression
+
+```{r, include = F}
+# reference RF
+load("../Data/reference_glm_measures.RData")
+```
+
+```{r, echo = F}
+# perturbed glm
+meas <- fread("../Data/glm_measures500.csv")
+meas.sd <- apply(meas, 2, sd)
+
+lower <- (glm.meas - 2*meas.sd) %>% round(4)
+upper <- (glm.meas + 2*meas.sd) %>% round(4)
+
+sprintf("(%0.4f, %0.4f)", lower, pmin(1, upper)) %>%
+  matrix(nrow = length(glm.meas), dimnames = list(names(glm.meas), "95% CI")) %>%
+  kable("latex", booktabs = T) %>%
+  kable_styling(font_size = 10)
+
+#quantile(meas$AUC, 0.025)
+#quantile(meas$AUC, 0.975)
+```
+
+### Naive Bayes
+
+```{r, include = F}
+# reference RF
+load("../Data/reference_nb_measures.RData")
+```
+
+```{r, echo = F}
+# perturbed nb
+meas <- fread("../Data/nb_measures500.csv")
+meas.sd <- apply(meas, 2, sd)
+
+lower <- (nb.meas - 2*meas.sd) %>% round(4)
+upper <- (nb.meas + 2*meas.sd) %>% round(4)
+
+sprintf("(%0.4f, %0.4f)", lower, pmin(1, upper)) %>%
+  matrix(nrow = length(nb.meas), dimnames = list(names(nb.meas), "95% CI")) %>%
+  kable("latex", booktabs = T) %>%
+  kable_styling(font_size = 10)
+
+#quantile(meas$AUC, 0.025)
+#quantile(meas$AUC, 0.975)
+```
 
 <!--
 
