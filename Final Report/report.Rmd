@@ -37,6 +37,7 @@ library(cowplot)
 library(tidyverse)
 library(knitr)
 set.seed(3)
+theme_set(theme_bw(base_size = 10))
 ```
 
 <!--
@@ -172,47 +173,29 @@ As we will shortly see, the distribution of a given metric observed on the set $
 
 In our toy example before, we had observed a classification accuracy of `r sprintf("%0.3f", svm_measured$accuracy)` for an appropriately tuned linear SVM applied to one set of measured values $\{ \mathbf U_i \}_{i = 1}^{500}$. Our goal is to estimate the distribution of classifier accuracy from a set of $B = 500$ perturbed sets of measurements, $\{\mathbf W^{(1)}_i\}, \dots, \{\mathbf W^{(B)}_i\}$. Since in the contrived case of our toy example, we can take repeated measurements, we can compare the results of the method from Section \@ref(pipeline) to the results obtained from actually capturing $B$ sets of measurements, $\{\mathbf U^{(1)}_i\}, \dots, \{\mathbf U^{(B)}_i\}$.
 
-
-
-```{r cache=T, echo=F}
+```{r toyExampleBoxplots, cache=T, echo=F, fig.cap = "A Comparison of Estimated Accuracy Distributions"}
 # simulate measurement error on one clean observation
 sim_results_me <- run_simulations(data, 500, 1)
 
 # simulate measurement error on one noisy observation
 sim_results_noisy <- run_simulations(noisy, 500, 1)
 
-#ggplot(sim_results_me) + geom_histogram(aes(x = accuracy), binwidth = 0.01, color = #"#000000", fill= "#ffaa33", size = .25) +
-#  xlab("Accuracy") +
-#  ylab("Frequency") +
-#  theme_bw(base_size = 8)
-
-ggplot(sim_results_me) + geom_boxplot(aes(y = accuracy), fill = "#ffaa33", size = 0.25) +
-  ylab("Accuracy") +
-  coord_flip() +
-  theme_bw(base_size = 8) +
-  theme(axis.text.y = element_blank())
-
-detach(toy)
-```
-
-That is, we might observe this distribution if we could take 500 sets of measurements.
-
-```{r echo=F}
-attach(toy)
+delta <- svm_measured$accuracy - mean(sim_results_noisy$accuracy)
 
 ggplot(bind_rows(
-  sim_results_me %>% add_column(observed = "500 Sets of Measurements"),
-  sim_results_noisy %>% add_column(observed = "500 Perturbations of 1 Set of Measurements")
+  sim_results_me %>% transmute(observed = "A: Repeated Measurements", accuracy = accuracy),
+  sim_results_noisy %>% transmute(observed = "B: Perturbed Measurements", accuracy = accuracy),
+  tibble(observed = "C: GPP Estimate", accuracy = sim_results_noisy$accuracy + delta)
 )) +
-  geom_boxplot(aes(x = observed, y = accuracy), fill = c("#999999", "#ffaa33")) +
+  geom_boxplot(aes(x = observed, y = accuracy, fill = accuracy)) +
+  geom_hline(yintercept = svm_measured$accuracy, color = "#4499cc", linetype = "dotted") +
   xlab(" ") +
-  ylab("Accuracy") +
-  coord_flip() +
-  theme_bw(base_size = 8)
+  ylab("Accuracy")
 ```
 
-- The standard deviation when taking 500 sets of measurements (what we want to estimate) is `r sprintf("%0.5f", sd(sim_results_me$accuracy))`.
-- The standard deviation when performing Gaussian perturbation on one set of measurements is `r sprintf("%0.5f", sd(sim_results_noisy$accuracy))`.
+Figure \@ref(fig:toyExampleBoxplots) shows the results of three different estimated distributions of classification accuracy. The leftmost distribution (A) is the estimate derived from the sets of repeated measurements, $\{\mathbf U^{(1)}_i\}, \dots, \{\mathbf U^{(B)}_i\}$. This is, in effect, the distribution we're trying to estimate. The middle distribution (B) is derived from the sets of perturbed measurements, $\{\mathbf W^{(1)}_i\}, \dots, \{\mathbf W^{(B)}_i\}$. The final distribution (C) is the result of shifting distribution B to be centered (in terms of mean) at our original observed accuracy of `r sprintf("%0.3f", svm_measured$accuracy)` (denoted by the dotted blue line). Of course, our ability to re-center such a distribution is dependent on our original point estimate. Ideally this point estimate will not lie far from its expected value.
+
+**TODO: BUT WAIT! THERE'S MORE! LET'S DO BOUNDARY STABILITY!**
 
 ```{r echo=F}
 plot_data_with_decision_boundaries(noisy, sim_results_noisy)
