@@ -33,8 +33,12 @@ vignettes/*.pdf
 Presentation/slides.pdf
 Presentation/slides_files/**
 
-# predictions
+# predictions and probabilities
 Data/preds_500.csv
+Data/glm_preds_500.csv
+Data/nb_preds_500.csv
+Data/glm_counts_prob.csv
+Data/nb_counts_prob.csv
 
 # compiled final report
 Final Report/report.pdf
