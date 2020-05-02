@@ -164,20 +164,15 @@ In contrast with the method just described in Section \@ref(motivation), the err
 
 Armed with these perturbed measurements, we can then apply any classifier or classifiers to each of the sets $\{ \mathbf W^{(1)}_i \}, \dots, \{\mathbf W^{(B)}_i \}$. Before doing so, we want to be careful to define a single partition of training and test observations, $\{1, \dots, n \} = I_\text{train} \cup I_\text{test}$. We will use the same training and test indices when evaluating the classification results on each of the perturbed datasets.
 
+As we will shortly see, the distribution of a given metric observed on the set $\{ \mathbf W_i \}$ will in general provide a biased estimate of the corresponding metric on $\{ \mathbf U_i \}$. Consequently, we will use the variance of the metric as observed over the $B$ sets $\{ \mathbf W^{(j)}_i \}$ to augment the point estimate we can derive from $\{ \mathbf U_i \}$ itself.
 
-
-
+**TODO:* Add more here?
 
 # Application: Toy Example {#toyexample}
 
-<!--
+In our toy example before, we had observed a classification accuracy of `r sprintf("%0.3f", svm_measured$accuracy)` for an appropriately tuned linear SVM applied to one set of measured values $\{ \mathbf U_i \}_{i = 1}^{500}$. Our goal is to estimate the distribution of classifier accuracy from a set of $B = 500$ perturbed sets of measurements, $\{\mathbf W^{(1)}_i\}, \dots, \{\mathbf W^{(B)}_i\}$. Since in the contrived case of our toy example, we can take repeated measurements, we can compare the results of the method from Section \@ref(pipeline) to the results obtained from actually capturing $B$ sets of measurements, $\{\mathbf U^{(1)}_i\}, \dots, \{\mathbf U^{(B)}_i\}$.
 
-Then we should return to the toy example. Showing box plots, etc. This is hardly theoretical justification, but it's something!
 
-Once we're sick of toys, we can move on to stars and stuff.
-
--->
-**TODO:** Using the same original dataset, we simulate taking noisy measurements and fitting the SVM 500 times to obtain the following distribution of classifier accuracy:
 
 ```{r cache=T, echo=F}
 # simulate measurement error on one clean observation
