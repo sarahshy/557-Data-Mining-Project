@@ -227,29 +227,6 @@ We acquired our data from the Sloan Digital Sky Survey (SDSS) Data Release #12. 
 
 ## Astro Results: Confidence intervals
 
-### Random Forest
-
-```{r, include = F}
-# reference RF
-load("../Data/reference_rf_measures.RData")
-```
-
-```{r, echo = F}
-# perturbed RF
-meas <- fread("../Data/measures500.csv")
-meas.sd <- apply(meas, 2, sd)
-
-lower <- (rf.meas - 2*meas.sd) %>% round(4)
-upper <- (rf.meas + 2*meas.sd) %>% round(4)
-
-sprintf("(%0.4f, %0.4f)", lower, pmin(1, upper)) %>%
-  matrix(nrow = length(rf.meas), dimnames = list(names(rf.meas), "95% CI")) %>%
-  kable("latex", booktabs = T) %>%
-  kable_styling(font_size = 10)
-
-#quantile(meas$AUC, 0.025)
-#quantile(meas$AUC, 0.975)
-```
 
 ### Logistic Regression
 
@@ -298,6 +275,32 @@ sprintf("(%0.4f, %0.4f)", lower, pmin(1, upper)) %>%
 #quantile(meas$AUC, 0.025)
 #quantile(meas$AUC, 0.975)
 ```
+
+### Random Forest
+
+```{r, include = F}
+# reference RF
+load("../Data/reference_rf_measures.RData")
+```
+
+```{r, echo = F}
+# perturbed RF
+meas <- fread("../Data/measures500.csv")
+meas.sd <- apply(meas, 2, sd)
+
+lower <- (rf.meas - 2*meas.sd) %>% round(4)
+upper <- (rf.meas + 2*meas.sd) %>% round(4)
+
+sprintf("(%0.4f, %0.4f)", lower, pmin(1, upper)) %>%
+  matrix(nrow = length(rf.meas), dimnames = list(names(rf.meas), "95% CI")) %>%
+  kable("latex", booktabs = T) %>%
+  kable_styling(font_size = 10)
+
+#quantile(meas$AUC, 0.025)
+#quantile(meas$AUC, 0.975)
+```
+
+Observations: Naive Bayes has the tightest intervals. This makes sense since Naive Bayes is a high bias, low variance classifier! We see it's pretty robust to perturbations.
 
 <!--
 
