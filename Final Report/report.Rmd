@@ -133,24 +133,40 @@ The discrepancy in accuracy is no surprise. Clearly, the presence of measurement
 
 This raises two fundamental questions: How widely does our decision boundary shift under the influence of measurement error? How widely does the performance of our classifier (as measured by metrics like accuracy, sensitivity, specificity, etc.) vary in the presence of measurement error?
 
-In the case of a toy example like this, we can address these questions by taking repeated measurements of the same observations, then evaluating the spectrum of decision boundaries and performance metrics that result from repeatedly fitting classifiers. More concretely, consider taking $M$ sets of measurements:
+In the case of a toy example like this, we can address these questions by taking repeated measurements of the same observations, then evaluating the spectrum of decision boundaries and performance metrics that result from repeatedly fitting classifiers. More concretely, consider taking $B$ sets of measurements:
 
 $$
 \begin{aligned}
 \mathbf U^{(1)}_i &= \mathbf x_i + \varepsilon^{(1)}_i, \quad i = 1, \dots, 500 \\
 & \quad \quad \vdots \\
-\mathbf U^{(M)}_i &= \mathbf x_i + \varepsilon^{(M)}_i, \quad i = 1, \dots, 500
+\mathbf U^{(B)}_i &= \mathbf x_i + \varepsilon^{(B)}_i, \quad i = 1, \dots, 500
 \end{aligned}
 $$
 
-From these $M$ sets of measurements, you can effectively derive Monte Carlo estimates of your preferred metrics, decision boundaries, etc. by simple observation of the distribution of the relevant quantities over the $M$ sets of measurements. Unfortunately, this method is not useful in a broader context, as we generally do not have the capacity to take large numbers of measurements on the same observations, and we do not know the true $\mathbf x_i$ values from which to simulate repeated measurements. 
-
+From these $B$ sets of measurements, you can effectively derive Monte Carlo estimates of your preferred metrics, decision boundaries, etc. by simple observation of the distribution of the relevant quantities over the $B$ sets of measurements. Unfortunately, this method is not useful in a broader context, as we generally do not have the capacity to take large numbers of measurements on the same observations, and we do not know the true $\mathbf x_i$ values from which to simulate repeated measurements.
 
 # Gaussian Perturbation Pipeline {#pipeline}
 
-**TODO:** Since we can't do the above, we'll do this instead:
+The method we consider for the general case is the use of Gaussian perturbation on a single set of $n$ observed measurements, $\{\mathbf U_i \}_{i = 1}^n$. A diagram is given in Figure \@ref(pipelineDiagram). In particular we generate $B$ sets of $n$ perturbed measurements, $\{\mathbf W^{(1)}_i\}, \dots, \{ \mathbf W^{(B)}_i\}$ by repeatedly adding noise to these measurements independently sampled from a normal distribution with the known measurement error variance, $\varepsilon^{(j)}_i \sim \text{i.i.d. } \mathcal N(\mathbf 0, \tau^2)$: 
 
-![Gaussian perturbation pipeline for uncertainty quantification](../Presentation/pipeline.png)
+$$
+\begin{aligned}
+\mathbf W^{(1)}_i \ | \ \mathbf U_i &= \mathbf U_i + \varepsilon^{(1)}_i, \quad i = 1, \dots, n \\
+& \vdots \\
+\mathbf W^{(B)}_i \ | \ \mathbf U_i &= \mathbf U_i + \varepsilon^{(B)}_i, \quad i = 1, \dots, n
+\end{aligned}
+$$
+
+In contrast with the method just described in Section \@ref(motivation), the error in the perturbed measurements here is being added to measurements that already incorporate measurement error---not to the (unknown) true values directly---hence the playful use of $\mathbf W$ (double U) to denote the perturbed measurements.
+
+![Gaussian perturbation pipeline for uncertainty quantification](../Presentation/pipeline.png){#pipelineDiagram}
+
+
+Armed with these perturbed measurements, we can then apply any classifier or classifiers to each of the sets $\{ \mathbf W^{(1)}_i \}, \dots, \{\mathbf W^{(B)}_i \}$. Before doing so, we want to be careful to define a single partition of training and test observations, $\{1, \dots, n \} = I_\text{train} \cup I_\text{test}$. We will use the same training and test indices when evaluating the classification results on each of the perturbed datasets.
+
+
+
+
 
 # Application: Toy Example {#toyexample}
 
@@ -237,6 +253,10 @@ Can we apply this on more than just random forest for the sake of the paper? Lik
 # Discussion
 
 As you can see, our method lacks theoretical justification, but it is otherwise incredible. If you give it a try, I think you'll find this method is worthy of an A+.
+
+## Author Contributions
+
+**TODO:** (I believe this is required.) Sarah did the astro stuff. Jonathan did the toy stuff. Everything else was shared.
 
 # Bibliography
 
