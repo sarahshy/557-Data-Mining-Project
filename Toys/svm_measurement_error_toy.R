@@ -77,6 +77,19 @@ soft_classify_set <- function(results, data) {
   data %>% mutate(p = scv(x1, x2))
 }
 
+# This is even worse.
+all_predictions <- function(results, data) {
+  n <- nrow(data)
+  B <- nrow(results)
+  preds <- matrix(NA, nrow = n, ncol = B)
+  for(i in 1:n) {
+    for(j in 1:B) {
+      preds[i,j] <- pmax(0, sign(results$beta_0[j] + results$beta_1[j] * data$x1[i] + results$beta_2[j] * data$x2[i]))
+    }
+  }
+  preds
+}
+
 svm_metrics <- function(data) {
   # uses global train, test
   svm_result <- svm(label ~ ., data = data[train,], kernel = "linear", cost = 0.18)

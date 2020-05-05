@@ -170,7 +170,34 @@ Armed with these perturbed measurements, we can then apply any classifier or cla
 
 As we will shortly see, the distribution of a given metric observed on the set $\{ \mathbf W_i \}$ will in general provide a biased estimate of the corresponding metric on $\{ \mathbf U_i \}$. Consequently, we will use the variance of the metric as observed over the $B$ sets $\{ \mathbf W^{(j)}_i \}$ to augment the point estimate we can derive from $\{ \mathbf U_i \}$ itself.
 
-**TODO:* Add more here?
+We can also use the set of $B$ classification results to quantify the uncertainty of our individual predictions and the stability of the classification process overall. Consider the case of a binary classifier $f$ whose output for observations $i = 1, \dots, n$ takes values $f(\mathbf x) \in [0, 1]$, where $f(\mathbf x)$ represents the probability that the $\mathbf x$ belongs to class 1. Using our sets of perturbed measurements, we can use this classifier to obtain $B$ outputs for each of the $n$ observations, $f(\mathbf W^{(1)}_i), \dots, f( \mathbf W^{(B)}_i), \ i = 1, \dots, n$. In a stable algorithm, these values would be very similar for each observation $i$. In an unstable algorithm, there would be higher variance among these values.
+
+We can use the classifications on our perturbed measurements to obtain a softened classification for each observation by simply taking the average over each of the $B$ classifications, i.e.:
+
+$$
+\hat y_i = \frac 1B \sum_{j = 1}^B f(\mathbf W^{(j)}_i)
+$$
+
+For a new measurement $\mathbf u$ (i.e., a measurement that is neither in the training nor test set), a softened classification can be obtained by generating $B$ perturbations of $\mathbf u$ using the known measurement error and averaging over these predictions as well.
+
+We can use the softened classifications on our original set of $n$ observations to quantify the instability of the algorithm, $\hat I$ over all $n$ measurements. An instability measure of $\hat I = 0$ indicates that the algorithm is perfectly stable over the testing set, while larger values indicate greater instability.
+
+$$
+\hat I = \frac 1n \sum_{i = 1}^n \sqrt { \frac1B \sum_{j = 1}^B (f(\mathbf W^{(j)}_i) - \hat y_i)^2 }
+$$
+
+```{r}
+classifier_instab <- function(preds) {
+  # preds should be a matrix of predictions with:
+  # B columns for each perturbed set
+  # n rows for each observation
+  B <- ncol(preds)
+  y <- rowMeans(preds)
+  y_matrix <- matrix(rep(y, B), ncol = B)
+  mean(rowMeans((preds - y_matrix)^2))
+}
+```
+
 
 # Application: Toy Example {#toyexample}
 
@@ -206,8 +233,12 @@ plot_data_with_decision_boundaries(noisy, sim_results_noisy)
 
 Averaging predictions over those 500 decision boundaries yields a softened classifier:
 
-```{r}
+```{r cache=T}
+# caching because all_predictions is hilariously slow
 classified <- soft_classify_set(sim_results_noisy, noisy)
+
+preds <- all_predictions(sim_results_noisy, noisy)
+classifier_instab(preds)
 
 ggplot(classified) +
   geom_point(aes(x = x1, y = x2, color = p)) +
