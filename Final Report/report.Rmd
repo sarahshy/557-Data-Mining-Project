@@ -191,8 +191,10 @@ classifier_instab <- function(preds) {
   # preds should be a matrix of predictions with:
   # B columns for each perturbed set
   # n rows for each observation
-  n <- nrow(preds)
-  sqrt((n-1)/n) * mean(apply(preds, 1, sd))
+  B <- ncol(preds)
+  y <- rowMeans(preds)
+  y_matrix <- matrix(rep(y, B), ncol = B)
+  mean(sqrt(rowMeans((preds - y_matrix)^2)))
 }
 ```
 
