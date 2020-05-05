@@ -288,7 +288,7 @@ ggplot(full.set.long, aes(x = value, fill = class)) +
   xlim(-1, 4)
 ```
 
-In Figure \@(fig:colorPlot), we show the marginal distributions of each feature, colored by the object class. The difference in distribution observed between the two classes indicates that there is class separation in the chosen feature space. We hope that classification algorithms can distinguish between the two classes using these features.
+In Figure \@ref(fig:colorPlot), we show the marginal distributions of each feature, colored by the object class. The difference in distribution observed between the two classes indicates that there is class separation in the chosen feature space. We hope that classification algorithms can distinguish between the two classes using these features.
 
 ## Astro Perturbation Results: Confidence intervals
 
@@ -346,9 +346,9 @@ cbind(glm.tbl, nb.tbl, rf.tbl) %>%
 
 
 ```{r astroStab, echo = F}
-glm.instab <- 0.09204126
-nb.instab <- 0.02805608
-rf.instab <- 0.08936165
+glm.instab <- 0.09204126*2
+nb.instab <- 0.02805608*2
+rf.instab <- 0.08936165*2
 
 matrix(c(glm.instab, nb.instab, rf.instab), dimnames = list(c("Logit", "Naive Bayes", "Random Forest"),"Instability Score")) %>%
   kable("latex", booktabs = T, caption = "Stability of classifiers")
@@ -356,6 +356,7 @@ matrix(c(glm.instab, nb.instab, rf.instab), dimnames = list(c("Logit", "Naive Ba
 
 Notice the relationship between the interval widths and the stability score. Naive Bayes had the narrowest intervals and lowest instability score, indicating that our Naive Bayes classifier is more stable compared with logistic regression and Random Forest. This makes sense since Naive Bayes is, theoretically, a high bias and low variance classifier. The results of Naive Bayes are robust to small perturbations in the training data.
 
+Logistic regression and random forest received a similar instability score, in which case we can choose the algorithm that simply performs better on new unseen data. However, we run into trouble when comparing their confidence intervals. All five of the performance metrics are bounded on the unit interval. Since random forest performs very well on this data, the confidence intervals exceed 1. For this reason, we truncated the confidence intervals at 1 in table \@ref(tab:astroCI). Therefore, the method we used for calculating confidence intervals may not make sense if the performance measures fall near 0 and 1. Further consideration is needed to better handle these confidence intervals. One potential solution is to choose a distribution other than Gaussian to calculate the intervals and somehow using the variation obtained from perturbing.
 
 
 # Discussion
