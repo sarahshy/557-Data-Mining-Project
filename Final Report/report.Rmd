@@ -194,7 +194,7 @@ classifier_instab <- function(preds) {
   B <- ncol(preds)
   y <- rowMeans(preds)
   y_matrix <- matrix(rep(y, B), ncol = B)
-  mean(rowMeans((preds - y_matrix)^2))
+  mean(sqrt(rowMeans((preds - y_matrix)^2)))
 }
 ```
 
@@ -225,7 +225,7 @@ ggplot(bind_rows(
 
 Figure \@ref(fig:toyExampleBoxplots) shows the results of three different estimated distributions of classification accuracy. The leftmost distribution (A) is the estimate derived from the sets of repeated measurements, $\{\mathbf U^{(1)}_i\}, \dots, \{\mathbf U^{(B)}_i\}$. This is, in effect, the distribution we're trying to estimate. The middle distribution (B) is derived from the sets of perturbed measurements, $\{\mathbf W^{(1)}_i\}, \dots, \{\mathbf W^{(B)}_i\}$. The final distribution (C) is the result of shifting distribution B to be centered (in terms of mean) at our original observed accuracy of `r sprintf("%0.3f", svm_measured$accuracy)` (denoted by the dotted blue line). Of course, our ability to re-center such a distribution is dependent on our original point estimate. Ideally this point estimate will not lie far from its expected value.
 
-**TODO: BUT WAIT! THERE'S MORE! LET'S DO BOUNDARY STABILITY!**
+As described above, we can also use the results of 
 
 ```{r echo=F}
 plot_data_with_decision_boundaries(noisy, sim_results_noisy)
