@@ -177,9 +177,9 @@ $$
 \hat y_i = \frac 1B \sum_{j = 1}^B f(\mathbf W^{(j)}_i)
 $$
 
-For a new measurement $\mathbf u$ (i.e., a measurement that is neither in the training nor test set), a softened classification can be obtained by generating $B$ perturbations of $\mathbf u$ using the known measurement error and averaging over these predictions as well.
+For a new measurement $\mathbf u$ (i.e., a measurement that is neither in the training nor test set), a softened classification can be obtained by generating $B$ perturbations of $\mathbf u$ using the known measurement error and averaging over these predictions.
 
-We can use the softened classifications on our original set of $n$ observations to quantify the instability of the algorithm, $\hat I \in [0, \frac 12]$ over all $n$ measurements. An instability measure of $\hat I = 0$ indicates that the algorithm is perfectly stable over the testing set, while larger values indicate greater instability. Maximum instability of $\hat I = \frac 12$ is attained when each observation has $\frac B2$ predictions each of 0 and 1.
+We can use the softened classifications on our original set of $n$ observations to quantify the instability of the algorithm, $\hat I \in [0, \frac 12]$, over all $n$ measurements. An instability value of $\hat I = 0$ indicates that the algorithm is perfectly stable over the testing set, while larger values indicate greater instability. The greatest possible instability of $\hat I = \frac 12$ would be attained if the predictions for each individual observation were evenly split between 0 and 1.
 
 $$
 \hat I = \frac 1n \sum_{i = 1}^n \sqrt { \frac1B \sum_{j = 1}^B (f(\mathbf W^{(j)}_i) - \hat y_i)^2 }
@@ -237,9 +237,9 @@ plot_data_with_decision_boundaries_and_soft_classifications(noisy, sim_results_n
 detach(toy)
 ```
 
-Figure \@ref(fig:toyStability) depicts the decision boundaries resulting from fitting the classifier to each of the 500 sets of perturbed measurements as well as the softened classifications, $\{ \hat y_i \}_{i = 1}^{500}$, resulting from averaging predictions over these decision boundaries. The algorithm is generally stable, so most predictions are unaffected by the perturbations. Near the middle of the plot, some points are visible with softened classifications[^softened]. The calculated measure of instability on this dataset is $\hat I$ = `r round(instab, 4)`.
+Figure \@ref(fig:toyStability) depicts the decision boundaries resulting from fitting the classifier to each of the 500 sets of perturbed measurements as well as the softened classifications, $\{ \hat y_i \}_{i = 1}^{500}$, resulting from averaging predictions over these decision boundaries. The algorithm is generally stable, so most predictions are unaffected by the perturbations. Near the middle of the plot, some points are visible with softened classifications.[^softened] The calculated instability value on this dataset is $\hat I$ = `r round(instab, 4)`.
 
-[^softened]: Note that it is also possible to start with a soft classifier and obtained further softened results by averaging over the $B$ predictions. For the sake of simplicity of illustration, a hard classifier is used here.
+[^softened]: Note that it is also possible to start with a soft classifier and obtain further softened results by averaging over the $B$ predictions. For the sake of simplicity of illustration, a hard classifier is used here.
 
 # Application: Astronomy Data {#astro}
 
