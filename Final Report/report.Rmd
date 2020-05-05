@@ -252,12 +252,58 @@ detach(toy)
 
 # Application: Astronomy Data {#astro}
 
+```{r, include = F}
+train.set1 <- fread("../Data/train_set1.csv")
+train.set2 <- fread("../Data/train_set2.csv")
+test.set <- fread("../Data/test_set.csv")
+
+# combine training sets
+train.set <- rbind(train.set1, train.set2)
+
+# convert class to factor
+train.set$class <- as.factor(train.set$class)
+test.set$class <- as.factor(test.set$class)
+```
+
 Classification method have been important tools in Astronomy for decades, and continue to be essential in studying the night sky [@kurtz1988astronomical]. With ever-increasing volumes of publicly available data, Astronomy is an area of research that is particularly well-suited for studying big data algorithms.
 
-We acquired our data from the Sloan Digital Sky Survey (SDSS) Data Release #12. The SDSS is one of the largest astronomical surveys, scanning over a third of the night sky and recording nearly 1 billion objects to date.
+We acquired our data from the Sloan Digital Sky Survey (SDSS) Data Release #12. The SDSS is one of the largest astronomical surveys, scanning over a third of the night sky and recording nearly 1 billion objects to date. Each row in the data represents a single point source in the sky and is classified as either a Galaxy, Star, or Quasar. The variables we use in our application are the point spread function (PSF) magnitudes at 5 wavelengths: ultraviolet ($u$), green ($g$), red ($r$), near infrared ($i$), and infrared ($z$). For each observation, we also have the known measurement error at each wavelength. We will use these errors as the standard deviation for our Gaussian perturbation. The features used for classification are the differences of the magnitudes, called colors: $u-g, g-r, r-i, and i-z$.
 
-## Astro Results: Confidence intervals
+To clean the data, objects with missing values and incorrect measurements were removed. To simplify the problem, we exclude quasars in our example as they make up a very small portion of the data. Our final dataset contains 234,972 objects and 4 features.
 
+The classification task is to predict the class (galaxy or star) of an object based on the observed color values.
+
+## Exploratory Analysis
+
+From Table \@ref(tab:astroClassProp), we notice that there is slight class imbalance in the data. Various techniques can be used to address the imbalance, such as upsampling, downsampling, and SMOTE. However, we do not demonstrate them here as improving prediction is not the main purpose of the project.
+
+```{r astroClassProp, echo = F}
+# create class proportion table for full set
+class.tbl <- prop.table(table(c(train.set$class, test.set$class)))
+names(class.tbl) <- c("Galaxy", "Star")
+
+# print table
+class.tbl %>% t %>% kable("latex", caption = "Class proportions of Astronomy dataset", booktabs = T)
+```
+
+```{r colorPlot, fig.height = 2}
+# pivot longer full dataset
+full.set.long <- rbind(train.set, test.set) %>% gather(key = "color", value = "value", u_g, g_r, r_i, i_z)
+
+# plot colors by class
+ggplot(full.set.long, aes(x = value, fill = class)) +
+  geom_density(col = NA) +
+  facet_grid(.~ color) +
+  xlim(-1, 4)
+```
+
+In Figure \@(fig:colorPlot), we show the marginal distributions of each feature, colored by the object class. The difference in distribution observed between the two classes indicates that there is class separation in the chosen feature space. We hope that classification algorithms can distinguish between the two classes using these features.
+
+## Astro Perturbation Results: Confidence intervals
+
+We created 500 perturbed sets using the original dataset and the known measurement error on each observation. Note that this example differs from the toy example in that each observation has its own measurement error. The standard deviation used to perturb each observation varies.
+
+To illustrate how one might compare stability across multiple classification algorithms, we applied 3 algorithms: logistic regression, Naive Bayes, and Random Forest, which are all well-suited for binary classification. For each classifier, we calculated the 95% perturbation confidence interval for 5 commonly used performance metrics and the stability score as defined in ********* Section ???????????
 
 ### Logistic Regression
 
@@ -275,7 +321,7 @@ lower <- (glm.meas - 2*meas.sd) %>% round(4)
 upper <- (glm.meas + 2*meas.sd) %>% round(4)
 
 sprintf("(%0.4f, %0.4f)", lower, pmin(1, upper)) %>%
-  matrix(nrow = length(glm.meas), dimnames = list(names(glm.meas), "95% CI")) %>%
+  matrix(nrow = length(glm.meas), dimnames = list(names(glm.meas), "95% Perturbed CI")) %>%
   kable("latex", booktabs = T) %>%
   kable_styling(font_size = 10)
 
@@ -299,7 +345,7 @@ lower <- (nb.meas - 2*meas.sd) %>% round(4)
 upper <- (nb.meas + 2*meas.sd) %>% round(4)
 
 sprintf("(%0.4f, %0.4f)", lower, pmin(1, upper)) %>%
-  matrix(nrow = length(nb.meas), dimnames = list(names(nb.meas), "95% CI")) %>%
+  matrix(nrow = length(nb.meas), dimnames = list(names(nb.meas), "95% Perturbed CI")) %>%
   kable("latex", booktabs = T) %>%
   kable_styling(font_size = 10)
 
@@ -323,7 +369,7 @@ lower <- (rf.meas - 2*meas.sd) %>% round(4)
 upper <- (rf.meas + 2*meas.sd) %>% round(4)
 
 sprintf("(%0.4f, %0.4f)", lower, pmin(1, upper)) %>%
-  matrix(nrow = length(rf.meas), dimnames = list(names(rf.meas), "95% CI")) %>%
+  matrix(nrow = length(rf.meas), dimnames = list(names(rf.meas), "95% Perturbed CI")) %>%
   kable("latex", booktabs = T) %>%
   kable_styling(font_size = 10)
 
