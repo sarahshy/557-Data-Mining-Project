@@ -351,7 +351,7 @@ rf.tbl <- sprintf("(%0.4f, %0.4f)", p.rf.lower, pmin(1, p.rf.upper)) %>%
   matrix(nrow = length(rf.meas), dimnames = list(names(rf.meas), "95% Perturbed CI (RF)"))
 
 cbind(glm.tbl, nb.tbl, rf.tbl) %>%
-  kable("latex", caption = "95\\% confidence intervals from Gaussian perturbation, for each classifier", booktabs = T) %>%
+  kable("latex", caption = "95\\% confidence intervals from Gaussian perturbation", booktabs = T) %>%
   kable_styling(font_size = 10)
 ```
 
