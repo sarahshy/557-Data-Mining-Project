@@ -191,10 +191,8 @@ classifier_instab <- function(preds) {
   # preds should be a matrix of predictions with:
   # B columns for each perturbed set
   # n rows for each observation
-  B <- ncol(preds)
-  y <- rowMeans(preds)
-  y_matrix <- matrix(rep(y, B), ncol = B)
-  mean(sqrt(rowMeans((preds - y_matrix)^2)))
+  n <- nrow(preds)
+  sqrt((n-1)/n) * mean(apply(preds, 1, sd))
 }
 ```
 
@@ -225,15 +223,15 @@ ggplot(bind_rows(
 
 Figure \@ref(fig:toyExampleBoxplots) shows the results of three different estimated distributions of classification accuracy. The leftmost distribution (A) is the estimate derived from the sets of repeated measurements, $\{\mathbf U^{(1)}_i\}, \dots, \{\mathbf U^{(B)}_i\}$. This is, in effect, the distribution we're trying to estimate. The middle distribution (B) is derived from the sets of perturbed measurements, $\{\mathbf W^{(1)}_i\}, \dots, \{\mathbf W^{(B)}_i\}$. The final distribution (C) is the result of shifting distribution B to be centered (in terms of mean) at our original observed accuracy of `r sprintf("%0.3f", svm_measured$accuracy)` (denoted by the dotted blue line). Of course, our ability to re-center such a distribution is dependent on our original point estimate. Ideally this point estimate will not lie far from its expected value.
 
-As described above, we can also use the results of 
+Figure \@ref(fig:toyDecisionBoundaries) depicts the decision boundaries resulting from fitting the classifier to each of the 500 sets of perturbed measurements, while Figure \@ref(fig:toySoftClassifier) depicts the softened classifications, $\{ \hat y_i \}_{i = 1}^{500}$, resulting from averaging predictions over these decision boundaries. The algorithm is generally stable, so most predictions are unaffected by the perturbations. Near the middle of the plot, some points are visible with softened classifications. Note that 
 
-```{r echo=F}
+```{r toyDecisionBoundaries, fig.cap = "500 Decision Boundaries from Perturbed Datasets"}
 plot_data_with_decision_boundaries(noisy, sim_results_noisy)
 ```
 
 Averaging predictions over those 500 decision boundaries yields a softened classifier:
 
-```{r cache=T}
+```{r toySoftClassifier, cache=T}
 # caching because all_predictions is hilariously slow
 classified <- soft_classify_set(sim_results_noisy, noisy)
 
