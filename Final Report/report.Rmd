@@ -179,10 +179,10 @@ $$
 
 For a new measurement $\mathbf u$ (i.e., a measurement that is neither in the training nor test set), a softened classification can be obtained by generating $B$ perturbations of $\mathbf u$ using the known measurement error and averaging over these predictions.
 
-We can use the softened classifications on our original set of $n$ observations to quantify the instability of the algorithm, $\hat I \in [0, \frac 12]$, over all $n$ measurements. An instability value of $\hat I = 0$ indicates that the algorithm is perfectly stable over the testing set, while larger values indicate greater instability. The greatest possible instability of $\hat I = \frac 12$ would be attained if the predictions for each individual observation were evenly split between 0 and 1.
+We can use the softened classifications on our original set of $n$ observations to quantify the instability of the algorithm, $\hat I \in [0, 1]$, defined below, over all $n$ measurements. $\hat I$ can be interpreted as twice the average standard deviation of the $B$ predictions for a given observation $i$, $\{ f(\mathbf W^{(j)}_i) \}_{j = 1}^B$, averaged over the $n$ observations ($i = 1, \dots, n$). $\hat I = 0$ indicates that the algorithm is perfectly stable over the training and testing set, while larger values indicate greater instability. The greatest possible instability of $\hat I = 1$ would be attained if the predictions for each individual observation were evenly split between 0 and 1.
 
 $$
-\hat I = \frac 1n \sum_{i = 1}^n \sqrt { \frac1B \sum_{j = 1}^B (f(\mathbf W^{(j)}_i) - \hat y_i)^2 }
+\hat I = \frac 2n \sum_{i = 1}^n \sqrt { \frac1B \sum_{j = 1}^B (f(\mathbf W^{(j)}_i) - \hat y_i)^2 }
 $$
 
 ```{r}
@@ -193,7 +193,7 @@ classifier_instab <- function(preds) {
   B <- ncol(preds)
   y <- rowMeans(preds)
   y_matrix <- matrix(rep(y, B), ncol = B)
-  mean(sqrt(rowMeans((preds - y_matrix)^2)))
+  2 * mean(sqrt(rowMeans((preds - y_matrix)^2)))
 }
 ```
 
