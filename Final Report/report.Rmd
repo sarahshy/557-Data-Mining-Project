@@ -16,7 +16,7 @@ output:
     toc_depth: 1
     template: null
 abstract: |
-  We consider the problem of classification in the presence of known measurement error. While the uncertainty imposed on the classifier by measurement error could in theory be estimated by taking many repeated measurements of the observed objects, this is usually not feasible in practice. In this report, we explore the possibility of assessing uncertainty in classification as well as robustness and stability of classification results in the presence of known measurement error by performing Gaussian perturbation on a single set of measurements.
+  We consider the problem of classification in the presence of known measurement error. While the uncertainty on the classifier by measurement error could, in theory, be estimated by taking many repeated measurements of the observed objects, this is often not feasible or expensive in practice. In this report, we explore the possibility of assessing uncertainty in classification as well as robustness and stability of classification results in the presence of known measurement error by performing Gaussian perturbation on a single set of measurements.
 ---
 
 
@@ -69,11 +69,11 @@ Measurement error is the difference between a measured quantity and its true val
 
 In many statistical scenarios, we assume that our data are perfect measurements of a quantity of interest. This often false assumption can lead to bias in parameter estimation for statistical models, loss of power for detecting interesting variable relationships, and masking of features of the data [@carroll2006measurement]. It is therefore crutial for us to investigate how measurement error influences modeling and to quantify uncertainty in statistical inference and estimation.
 
-In many contexts, we know the variation of our measurement error. This is particularly true in various scientific and engineering settings, where the random error of a measuring device can be measured by the manufacturer or the scientist. In other settings, when the measurement error is unknown, but one can take repeated measurements on each subject, we can estimate the within-subject variation [@bland1996statistics]. In this paper, we focus on the use of known measurement error, although the results would apply in a similar fashion to estimated measurement error. 
+In many contexts, we know the value of our measurement error. This is particularly true in various scientific and engineering settings, where the random error of a measuring device can be measured by the manufacturer or the scientist. In other settings, when the measurement error is unknown, but one can take repeated measurements on each subject, we can estimate the within-subject variation [@bland1996statistics]. In this paper, we focus on the use of known measurement error, although the results apply in a similar fashion to estimated measurement error. 
 
-The goal of this paper is to assess the stability of a classification algorithm and quantify uncertainty in classification results in the presence of measurement error. While existing research on uncertainty quantification is largely algorithm-specific, our work explores a general pipeline for quantifying uncertainty with any classifier. This would allow us to better compare uncertainty, stability, and overall performance across multiple classifiers. This report summarizes our exploratory work in this area of research.
+The goal of this paper is to assess the stability of a classification algorithm and quantify uncertainty in classification results in the presence of measurement error. While existing research on uncertainty quantification is largely algorithm-specific, our work explores a general pipeline for quantifying uncertainty of any classifier. This will allow us to better compare uncertainty, stability, and overall performance across multiple classifiers, a natural comparison for algorithm selection. As stability is a crucial element for scientific reproducibility, particularly as fields increasingly draw conclusions using statistical methods, we believe quantifying stability is a useful contribution to the literature. This report summarizes our exploratory work in this area of research.
 
-We begin by motivating the subject with a toy example in Section \@ref(motivation). In Section \@ref(pipeline), we introduce the Gaussian perturbation pipeline for stability and uncertainty quantification. In Section \@ref(toyexample), we apply the pipeline to the previously simulated toy data. In Section \@ref(astro), we present a real-world application to Astronomy data. Finally, we discuss the results and future direction in Section \@ref(discussion).
+We begin by motivating the subject with a toy example in Section \@ref(motivation). In Section \@ref(pipeline), we introduce the Gaussian perturbation pipeline for stability and uncertainty quantification. In Section \@ref(toyexample), we apply the pipeline to the previously instroduced simulated toy data. In Section \@ref(astro), we present a real-world application to Astronomy data. Finally, we discuss the results and future directions in Section \@ref(discussion).
 
 # Motivation {#motivation}
 
@@ -126,13 +126,13 @@ svm_true <- svm_metrics(data)
 svm_measured <- svm_metrics(noisy)
 ```
 
-Consider the case of fitting a linear SVM to the set of measured values above. We split our values into training and test sets, then use 10-fold cross-validation in the training set to determine the optimal cost parameter of $\lambda = 0.18$. The fitted model is shown in figure \@ref(fig:singleSvm), and its prediction accuracy in the test set is `r sprintf("%0.3f", svm_measured$accuracy)`. By comparison, the same exact process run against the true values instead of the measured values yields an accuracy of `r sprintf("%0.3f", svm_true$accuracy)`.
+Consider the case of fitting a linear Support Vector Classifier to the set of measured values above. We randomly split our data into 70-30 training and test sets, and then use 10-fold cross-validation in the training set to determine the optimal cost parameter of $\lambda = 0.18$. The fitted model is shown in Figure \@ref(fig:singleSvm), and its prediction accuracy in the test set is `r sprintf("%0.3f", svm_measured$accuracy)`. By comparison, the same exact process run on the true values instead of the noisy measured values yields an accuracy of `r sprintf("%0.3f", svm_true$accuracy)`.
 
-```{r singleSvm, fig.cap = "Linear SVM Fit to Measured Values"}
+```{r singleSvm, fig.cap = "Linear SVM Fit to Measured Values. Accuracy = 0.833."}
 plot_data_with_decision_boundaries(noisy, svm_measured, alpha = 1)
 ```
 
-The discrepancy in accuracy is no surprise. Clearly, the presence of measurement error will affect our ability to discern between the two classes. But remember that our test set consists of measured values. Suppose we had tested with diffrent measurements of the same underlying true values. Might we observe different accuracy? Similarly, we trained this model on measured values. Suppose we had trained the model on a different set of measurements. This would almost certainly shift our decision boundary.
+The discrepancy in accuracy is no surprise. Clearly, the presence of measurement error will affect our ability to discern between the two classes. But remember that our test set consists of measured values as we usually cannot observe the true values. Suppose we had tested with yet another set of measurements of the same underlying true values. Might we observe different accuracy? Similarly, we trained this model on measured values. Suppose we had trained the model on a different set of measurements. This would almost certainly shift our decision boundary.
 
 This raises two fundamental questions: How widely does our decision boundary shift under the influence of measurement error? How widely does the performance of our classifier (as measured by metrics like accuracy, sensitivity, specificity, etc.) vary in the presence of measurement error?
 
