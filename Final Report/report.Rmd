@@ -180,7 +180,7 @@ $$
 
 For a new measurement $\mathbf u$ (i.e., a measurement that is neither in the training nor test set), a softened classification can be obtained by generating $B$ perturbations of $\mathbf u$ using the known measurement error and averaging over these predictions as well.
 
-We can use the softened classifications on our original set of $n$ observations to quantify the instability of the algorithm, $\hat I$ over all $n$ measurements. An instability measure of $\hat I = 0$ indicates that the algorithm is perfectly stable over the testing set, while larger values indicate greater instability.
+We can use the softened classifications on our original set of $n$ observations to quantify the instability of the algorithm, $\hat I \in [0, \frac 12]$ over all $n$ measurements. An instability measure of $\hat I = 0$ indicates that the algorithm is perfectly stable over the testing set, while larger values indicate greater instability. Maximum instability of $\hat I = \frac 12$ is attained when each observation has $\frac B2$ predictions each of 0 and 1.
 
 $$
 \hat I = \frac 1n \sum_{i = 1}^n \sqrt { \frac1B \sum_{j = 1}^B (f(\mathbf W^{(j)}_i) - \hat y_i)^2 }
@@ -225,26 +225,29 @@ ggplot(bind_rows(
 
 Figure \@ref(fig:toyExampleBoxplots) shows the results of three different estimated distributions of classification accuracy. The leftmost distribution (A) is the estimate derived from the sets of repeated measurements, $\{\mathbf U^{(1)}_i\}, \dots, \{\mathbf U^{(B)}_i\}$. This is, in effect, the distribution we're trying to estimate. The middle distribution (B) is derived from the sets of perturbed measurements, $\{\mathbf W^{(1)}_i\}, \dots, \{\mathbf W^{(B)}_i\}$. The final distribution (C) is the result of shifting distribution B to be centered (in terms of mean) at our original observed accuracy of `r sprintf("%0.3f", svm_measured$accuracy)` (denoted by the dotted blue line). Of course, our ability to re-center such a distribution is dependent on our original point estimate. Ideally this point estimate will not lie far from its expected value.
 
-Figure \@ref(fig:toyDecisionBoundaries) depicts the decision boundaries resulting from fitting the classifier to each of the 500 sets of perturbed measurements, while Figure \@ref(fig:toySoftClassifier) depicts the softened classifications, $\{ \hat y_i \}_{i = 1}^{500}$, resulting from averaging predictions over these decision boundaries. The algorithm is generally stable, so most predictions are unaffected by the perturbations. Near the middle of the plot, some points are visible with softened classifications. Note that 
+Figure \@ref(fig:toyDecisionBoundaries) depicts the decision boundaries resulting from fitting the classifier to each of the 500 sets of perturbed measurements, while Figure \@ref(fig:toySoftClassifier) depicts the softened classifications, $\{ \hat y_i \}_{i = 1}^{500}$, resulting from averaging predictions over these decision boundaries. The algorithm is generally stable, so most predictions are unaffected by the perturbations. Near the middle of the plot, some points are visible with softened classifications[^softened].
 
-```{r toyDecisionBoundaries, fig.cap = "500 Decision Boundaries from Perturbed Datasets"}
-plot_data_with_decision_boundaries(noisy, sim_results_noisy)
-```
+[^softened]: Note that it is also possible to start with a soft classifier and obtained further softened results by averaging over the $B$ predictions. For the sake of simplicity of illustration, a hard classifier is used here.
 
-Averaging predictions over those 500 decision boundaries yields a softened classifier:
+```{r toyDecisionBoundaries, cache = T, fig.cap = "Decision Boundaries and Softened Classifications via Perturbed Datasets"}
 
-```{r toySoftClassifier, cache=T}
 # caching because all_predictions is hilariously slow
 classified <- soft_classify_set(sim_results_noisy, noisy)
 
 preds <- all_predictions(sim_results_noisy, noisy)
 classifier_instab(preds)
 
-ggplot(classified) +
-  geom_point(aes(x = x1, y = x2, color = p)) +
-  scale_color_gradient(low = "#cc0011", high = "#223399") +
-  xlim(-10, 10) +
-  ylim(-10, 10)
+plot_grid(
+  plot_data_with_decision_boundaries(noisy, sim_results_noisy),
+  ggplot(classified) +
+    geom_point(aes(x = x1, y = x2, color = p)) +
+    scale_color_gradient(low = "#cc0011", high = "#223399") +
+    xlim(-10, 10) +
+    ylim(-10, 10)
+)
+```
+
+```{r toySoftClassifier, cache=T}
 
 # KILL THE TOY
 detach(toy)
