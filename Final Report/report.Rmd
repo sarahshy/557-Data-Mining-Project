@@ -16,8 +16,7 @@ output:
     toc_depth: 1
     template: null
 abstract: |
-  This is a test. This is a test. This is a test. This is a test. This is a test.
-  This is a test. This is a test. This is a test. This is a test. This is a test.
+  We consider the problem of classification in the presence of known measurement error. While the uncertainty imposed on the classifier by measurement error could in theory be estimated by taking many repeated measurements of the observed objects, this is usually not feasible in practice. In this report, we explore the possibility of assessing uncertainty in classification as well as robustness and stability of classification results in the presence of known measurement error by performing Gaussian perturbation on a single set of measurements.
 ---
 
 
