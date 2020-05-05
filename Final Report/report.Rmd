@@ -361,13 +361,18 @@ Logistic regression and random forest received a similar instability score, in w
 
 # Discussion
 
-As you can see, our method lacks theoretical justification, but it is otherwise incredible. If you give it a try, I think you'll find this method is worthy of an A+.
+This is a paper.
 
-## Author Contributions
+## Individual Contributions {-}
 
-**TODO:** (I believe this is required.) Sarah did the astro stuff. Jonathan did the toy stuff. Everything else was shared.
+- Literature Review: SS
+- Methods: SS, JH
+- Toy Example Generation and Analysis: JH
+- Astronomy Data Collection and Analysis: SS
+- Presentation Materials: SS, JH
+- Written Report: JH, SS
 
-# Bibliography
+# Bibliography {-}
 
 <!-- pls don't delete yet. I'll get to it, but I need to store it somewhere for now -->
 
