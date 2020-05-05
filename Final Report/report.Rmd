@@ -348,9 +348,6 @@ sprintf("(%0.4f, %0.4f)", lower, pmin(1, upper)) %>%
   matrix(nrow = length(nb.meas), dimnames = list(names(nb.meas), "95% Perturbed CI")) %>%
   kable("latex", booktabs = T) %>%
   kable_styling(font_size = 10)
-
-#quantile(meas$AUC, 0.025)
-#quantile(meas$AUC, 0.975)
 ```
 
 ### Random Forest
@@ -372,20 +369,9 @@ sprintf("(%0.4f, %0.4f)", lower, pmin(1, upper)) %>%
   matrix(nrow = length(rf.meas), dimnames = list(names(rf.meas), "95% Perturbed CI")) %>%
   kable("latex", booktabs = T) %>%
   kable_styling(font_size = 10)
-
-#quantile(meas$AUC, 0.025)
-#quantile(meas$AUC, 0.975)
 ```
 
 Observations: Naive Bayes has the tightest intervals. This makes sense since Naive Bayes is a high bias, low variance classifier! We see it's pretty robust to perturbations.
-
-<!--
-
-JH: One more potentially annoying question here:
-
-Can we apply this on more than just random forest for the sake of the paper? Like we can do RF, SVM, and logistic or something and then compare them? We're arguing in the intro that we want to be able to use this to compare classifiers, but right now, we're not actually comparing any classifiers.
-
--->
 
 # Discussion
 
