@@ -243,7 +243,7 @@ Figure \@ref(fig:toyStability) depicts the decision boundaries resulting from fi
 
 # Application: Astronomy Data {#astro}
 
-```{r, include = F}
+```{r include = F}
 train.set1 <- fread("../Data/train_set1.csv")
 train.set2 <- fread("../Data/train_set2.csv")
 test.set <- fread("../Data/test_set.csv")
@@ -277,7 +277,7 @@ names(class.tbl) <- c("Galaxy", "Star")
 class.tbl %>% t %>% kable("latex", caption = "Class proportions of Astronomy dataset", booktabs = T)
 ```
 
-```{r colorPlot, fig.height = 2}
+```{r colorPlot, cache = T, fig.height = 2, fig.cap = "Marginal distributions of the Astronomy data", echo = F}
 # pivot longer full dataset
 full.set.long <- rbind(train.set, test.set) %>% gather(key = "color", value = "value", u_g, g_r, r_i, i_z)
 
@@ -294,9 +294,7 @@ In Figure \@(fig:colorPlot), we show the marginal distributions of each feature,
 
 We created 500 perturbed sets using the original dataset and the known measurement error on each observation. Note that this example differs from the toy example in that each observation has its own measurement error. The standard deviation used to perturb each observation varies.
 
-To illustrate how one might compare stability across multiple classification algorithms, we applied 3 algorithms: logistic regression, Naive Bayes, and Random Forest, which are all well-suited for binary classification. For each classifier, we calculated the 95% perturbation confidence interval for 5 commonly used performance metrics and the stability score as defined in ********* Section ???????????
-
-
+To illustrate how one might compare stability across multiple classification algorithms, we applied 3 algorithms: logistic regression, Naive Bayes, and Random Forest, which are all well-suited for binary classification. For each classifier, we calculated the 95% perturbation confidence interval for 5 commonly used performance metrics and the stability score as defined in Section 3. The resulting confidence interval for each classifier is presented in Table \@ref(tab:astroCI). The instability score for each classifier is also shown in Table \@ref(tab:astroStab). 
 
 ```{r, include = F}
 # reference GLM
@@ -309,7 +307,7 @@ load("../Data/reference_nb_measures.RData")
 load("../Data/reference_rf_measures.RData")
 ```
 
-```{r, echo = F}
+```{r astroCI, echo = F}
 # perturbed glm
 p.glm.meas <- fread("../Data/glm_measures500.csv")
 p.glm.meas.sd <- apply(p.glm.meas, 2, sd)
@@ -336,10 +334,10 @@ glm.tbl <- sprintf("(%0.4f, %0.4f)", p.glm.lower, pmin(1, p.glm.upper)) %>%
   matrix(nrow = length(glm.meas), dimnames = list(names(glm.meas), "95% CI (Logit)"))
 
 nb.tbl <- sprintf("(%0.4f, %0.4f)", p.nb.lower, pmin(1, p.nb.upper)) %>%
-  matrix(nrow = length(nb.meas), dimnames = list(names(nb.meas), "95% Perturbed CI (NB)"))
+  matrix(nrow = length(nb.meas), dimnames = list(names(nb.meas), "95% CI (NB)"))
 
 rf.tbl <- sprintf("(%0.4f, %0.4f)", p.rf.lower, pmin(1, p.rf.upper)) %>%
-  matrix(nrow = length(rf.meas), dimnames = list(names(rf.meas), "95% Perturbed CI (RF)"))
+  matrix(nrow = length(rf.meas), dimnames = list(names(rf.meas), "95% CI (RF)"))
 
 cbind(glm.tbl, nb.tbl, rf.tbl) %>%
   kable("latex", caption = "95\\% confidence intervals from Gaussian perturbation", booktabs = T) %>%
@@ -347,16 +345,18 @@ cbind(glm.tbl, nb.tbl, rf.tbl) %>%
 ```
 
 
-```{r, echo = F}
-# "95% confidence intervals from Gaussian perturbation for each classifier"
-# glm.instab <- 0.09204126
-# nb.instab <- 0.02805608
-# 
-# %>%
-#   kable("latex", booktabs = T, caption = "Stability of classifiers")
+```{r astroStab, echo = F}
+glm.instab <- 0.09204126
+nb.instab <- 0.02805608
+rf.instab <- 0.08936165
+
+matrix(c(glm.instab, nb.instab, rf.instab), dimnames = list(c("Logit", "Naive Bayes", "Random Forest"),"Instability Score")) %>%
+  kable("latex", booktabs = T, caption = "Stability of classifiers")
 ```
 
-Observations: Naive Bayes has the tightest intervals. This makes sense since Naive Bayes is a high bias, low variance classifier! We see it's pretty robust to perturbations.
+Notice the relationship between the interval widths and the stability score. Naive Bayes had the narrowest intervals and lowest instability score, indicating that our Naive Bayes classifier is more stable compared with logistic regression and Random Forest. This makes sense since Naive Bayes is, theoretically, a high bias and low variance classifier. The results of Naive Bayes are robust to small perturbations in the training data.
+
+
 
 # Discussion
 
