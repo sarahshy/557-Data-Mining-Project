@@ -225,33 +225,22 @@ ggplot(bind_rows(
 
 Figure \@ref(fig:toyExampleBoxplots) shows the results of three different estimated distributions of classification accuracy. The leftmost distribution (A) is the estimate derived from the sets of repeated measurements, $\{\mathbf U^{(1)}_i\}, \dots, \{\mathbf U^{(B)}_i\}$. This is, in effect, the distribution we're trying to estimate. The middle distribution (B) is derived from the sets of perturbed measurements, $\{\mathbf W^{(1)}_i\}, \dots, \{\mathbf W^{(B)}_i\}$. The final distribution (C) is the result of shifting distribution B to be centered (in terms of mean) at our original observed accuracy of `r sprintf("%0.3f", svm_measured$accuracy)` (denoted by the dotted blue line). Of course, our ability to re-center such a distribution is dependent on our original point estimate. Ideally this point estimate will not lie far from its expected value.
 
-Figure \@ref(fig:toyDecisionBoundaries) depicts the decision boundaries resulting from fitting the classifier to each of the 500 sets of perturbed measurements, while Figure \@ref(fig:toySoftClassifier) depicts the softened classifications, $\{ \hat y_i \}_{i = 1}^{500}$, resulting from averaging predictions over these decision boundaries. The algorithm is generally stable, so most predictions are unaffected by the perturbations. Near the middle of the plot, some points are visible with softened classifications[^softened].
 
-[^softened]: Note that it is also possible to start with a soft classifier and obtained further softened results by averaging over the $B$ predictions. For the sake of simplicity of illustration, a hard classifier is used here.
-
-```{r toyDecisionBoundaries, cache = T, fig.cap = "Decision Boundaries and Softened Classifications via Perturbed Datasets"}
+```{r toyStability, cache = T, fig.cap = "Decision Boundaries and Softened Classifications via Perturbed Measurements"}
 
 # caching because all_predictions is hilariously slow
-classified <- soft_classify_set(sim_results_noisy, noisy)
-
 preds <- all_predictions(sim_results_noisy, noisy)
-classifier_instab(preds)
+instab <- classifier_instab(preds)
 
-plot_grid(
-  plot_data_with_decision_boundaries(noisy, sim_results_noisy),
-  ggplot(classified) +
-    geom_point(aes(x = x1, y = x2, color = p)) +
-    scale_color_gradient(low = "#cc0011", high = "#223399") +
-    xlim(-10, 10) +
-    ylim(-10, 10)
-)
-```
-
-```{r toySoftClassifier, cache=T}
+plot_data_with_decision_boundaries_and_soft_classifications(noisy, sim_results_noisy)
 
 # KILL THE TOY
 detach(toy)
 ```
+
+Figure \@ref(fig:toyStability) depicts the decision boundaries resulting from fitting the classifier to each of the 500 sets of perturbed measurements as well as the softened classifications, $\{ \hat y_i \}_{i = 1}^{500}$, resulting from averaging predictions over these decision boundaries. The algorithm is generally stable, so most predictions are unaffected by the perturbations. Near the middle of the plot, some points are visible with softened classifications[^softened]. The calculated measure of instability on this dataset is $\hat I$ = `r round(instab, 4)`.
+
+[^softened]: Note that it is also possible to start with a soft classifier and obtained further softened results by averaging over the $B$ predictions. For the sake of simplicity of illustration, a hard classifier is used here.
 
 # Application: Astronomy Data {#astro}
 
