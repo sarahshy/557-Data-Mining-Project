@@ -345,10 +345,10 @@ glm.tbl <- sprintf("(%0.4f, %0.4f)", p.glm.lower, pmin(1, p.glm.upper)) %>%
   matrix(nrow = length(glm.meas), dimnames = list(names(glm.meas), "95% CI (Logit)"))
 
 nb.tbl <- sprintf("(%0.4f, %0.4f)", p.nb.lower, pmin(1, p.nb.upper)) %>%
-  matrix(nrow = length(nb.meas), dimnames = list(names(nb.meas), "95% Perturbed CI (NB)"))
+  matrix(nrow = length(nb.meas), dimnames = list(names(nb.meas), "95% CI (NB)"))
 
 rf.tbl <- sprintf("(%0.4f, %0.4f)", p.rf.lower, pmin(1, p.rf.upper)) %>%
-  matrix(nrow = length(rf.meas), dimnames = list(names(rf.meas), "95% Perturbed CI (RF)"))
+  matrix(nrow = length(rf.meas), dimnames = list(names(rf.meas), "95% CI (RF)"))
 
 cbind(glm.tbl, nb.tbl, rf.tbl) %>%
   kable("latex", booktabs = T, caption = "95% confidence intervals from Gaussian perturbation for each classifier") %>%
