@@ -126,7 +126,7 @@ svm_true <- svm_metrics(data)
 svm_measured <- svm_metrics(noisy)
 ```
 
-Consider the case of fitting a linear Support Vector Classifier to the set of measured values above. We randomly split our data into 70-30 training and test sets, and then use 10-fold cross-validation in the training set to determine the optimal cost parameter of $\lambda = 0.18$. The fitted model is shown in Figure \@ref(fig:singleSvm), and its prediction accuracy in the test set is `r sprintf("%0.3f", svm_measured$accuracy)`. By comparison, the same exact process run on the true values instead of the noisy measured values yields an accuracy of `r sprintf("%0.3f", svm_true$accuracy)`.
+Consider the case of fitting a linear Support Vector Machine (SVM) to the set of measured values above. We randomly split our data into 70-30 training and test sets, and then use 10-fold cross-validation in the training set to determine the optimal cost parameter of $\lambda = 0.18$. The fitted model is shown in Figure \@ref(fig:singleSvm), and its prediction accuracy in the test set is `r sprintf("%0.3f", svm_measured$accuracy)`. By comparison, the same exact process run on the true values instead of the noisy measured values yields an accuracy of `r sprintf("%0.3f", svm_true$accuracy)`.
 
 ```{r singleSvm, fig.cap = "Linear SVM Fit to Measured Values. Accuracy = 0.833."}
 plot_data_with_decision_boundaries(noisy, svm_measured, alpha = 1)
@@ -222,7 +222,7 @@ ggplot(bind_rows(
   ylab("Accuracy")
 ```
 
-Figure \@ref(fig:toyExampleBoxplots) shows the results of three different estimated distributions of classification accuracy. The leftmost distribution (A) is the estimate derived from the sets of repeated measurements, $\{\mathbf U^{(1)}_i\}, \dots, \{\mathbf U^{(B)}_i\}$. This is, in effect, the distribution we're trying to estimate. The middle distribution (B) is derived from the sets of perturbed measurements, $\{\mathbf W^{(1)}_i\}, \dots, \{\mathbf W^{(B)}_i\}$. The final distribution (C) is the result of shifting distribution B to be centered (in terms of mean) at our original observed accuracy of `r sprintf("%0.3f", svm_measured$accuracy)` (denoted by the dotted blue line). Of course, our ability to re-center such a distribution is dependent on our original point estimate. Ideally this point estimate will not lie far from its expected value.
+Figure \@ref(fig:toyExampleBoxplots) shows the results of three different estimated distributions of classification accuracy. The leftmost distribution (A) is the estimate derived from the sets of repeated measurements, $\{\mathbf U^{(1)}_i\}, \dots, \{\mathbf U^{(B)}_i\}$. This is, in effect, the distribution we're trying to estimate. The middle distribution (B) is derived from the sets of perturbed measurements, $\{\mathbf W^{(1)}_i\}, \dots, \{\mathbf W^{(B)}_i\}$. The final distribution (C) is the result of shifting distribution B to be centered (in terms of mean) at our original observed accuracy of `r sprintf("%0.3f", svm_measured$accuracy)` (denoted by the dotted blue line). Of course, our ability to re-center such a distribution is dependent on our original point estimate. Ideally, this point estimate will not lie far from its expected value.
 
 
 ```{r toyStability, cache = T, fig.cap = "Decision Boundaries and Softened Classifications via Perturbed Measurements"}
@@ -237,9 +237,7 @@ plot_data_with_decision_boundaries_and_soft_classifications(noisy, sim_results_n
 detach(toy)
 ```
 
-Figure \@ref(fig:toyStability) depicts the decision boundaries resulting from fitting the classifier to each of the 500 sets of perturbed measurements as well as the softened classifications, $\{ \hat y_i \}_{i = 1}^{500}$, resulting from averaging predictions over these decision boundaries. The algorithm is generally stable, so most predictions are unaffected by the perturbations. Near the middle of the plot, some points are visible with softened classifications.[^softened] The calculated instability value on this dataset is $\hat I$ = `r round(instab, 4)`.
-
-[^softened]: Note that it is also possible to start with a soft classifier and obtain further softened results by averaging over the $B$ predictions. For the sake of simplicity of illustration, a hard classifier is used here.
+Figure \@ref(fig:toyStability) depicts the decision boundaries resulting from fitting the classifier to each of the 500 sets of perturbed measurements as well as the softened classifications, $\{ \hat y_i \}_{i = 1}^{500}$, resulting from averaging predictions over these decision boundaries. The algorithm is generally stable, so most predictions are unaffected by the perturbations. Near the middle of the plot, some points are visible with softened classifications. The calculated instability value on this dataset and classifier is $\hat I$ = `r round(instab, 4)`.
 
 # Application: Astronomy Data {#astro}
 
@@ -256,7 +254,7 @@ train.set$class <- as.factor(train.set$class)
 test.set$class <- as.factor(test.set$class)
 ```
 
-Classification method have been important tools in Astronomy for decades, and continue to be essential in studying the night sky [@kurtz1988astronomical]. With ever-increasing volumes of publicly available data, Astronomy is an area of research that is particularly well-suited for studying big data algorithms.
+Classification methods have been important tools in Astronomy for decades, and continue to be essential in studying the night sky [@kurtz1988astronomical]. With ever-increasing volumes of publicly available data, Astronomy is an area of research that is particularly well-suited for studying big data algorithms.
 
 We acquired our data from the Sloan Digital Sky Survey (SDSS) Data Release #12. The SDSS is one of the largest astronomical surveys, scanning over a third of the night sky and recording nearly 1 billion objects to date. Each row in the data represents a single point source in the sky and is classified as either a Galaxy, Star, or Quasar. The variables we use in our application are the point spread function (PSF) magnitudes at 5 wavelengths: ultraviolet ($u$), green ($g$), red ($r$), near infrared ($i$), and infrared ($z$). For each observation, we also have the known measurement error at each wavelength. We will use these errors as the standard deviation for our Gaussian perturbation. The features used for classification are the differences of the magnitudes, called colors: $u-g, g-r, r-i, \text{and} i-z$.
 
