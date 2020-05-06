@@ -359,7 +359,9 @@ Logistic regression and random forest received a similar instability score, in w
 
 # Discussion
 
-This is a paper.
+We have demonstrated how Gaussian perturbation can be used to measure algorithm stability and quantify uncertainty in classification tasks. Utilizing known measurement error, these measures are effectively functions of the known error. Moreover, we discussed how this method can be used for algorithm selection and calculating class probabilities for each observation.
+
+In the future, we would be interested in exploring how this pipeline translates to a clustering task, where performance measures are relatively nebulous. In addition, we are interested in using this pipeline to potentially improve the performance of a classifier through ensemble learning methods.
 
 ## Individual Contributions {-}
 
