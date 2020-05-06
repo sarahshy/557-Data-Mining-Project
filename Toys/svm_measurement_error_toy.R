@@ -65,15 +65,15 @@ plot_data_with_decision_boundaries <- function(data, results, alpha = 0.1) {
     geom_abline(intercept = intercepts, slope = slopes, alpha = alpha, color = "#999999")
 }
 
-plot_data_with_decision_boundaries_and_soft_classifications <- function(data, results, alpha = 0.05) {
+plot_data_with_decision_boundaries_and_soft_classifications <- function(data, results) {
   # I've always been fond of long function names.
   classified <- soft_classify_set(sim_results_noisy, noisy)
   intercepts <- -results$beta_2^-1 * results$beta_0
   slopes <- -results$beta_2^-1 * results$beta_1
   ggplot(classified) +
-    geom_abline(intercept = intercepts, slope = slopes, alpha = alpha, color = "#444444") +
+    geom_abline(intercept = intercepts, slope = slopes, alpha = 0.05, color = "#777777") +
     geom_point(aes(x = x1, y = x2, color = p), size = 1) +
-    scale_color_gradientn(colors = c("#cc0000", "#991133", "#442266", "#004499"),
+    scale_color_gradientn(colors = c("#f1cc11", "#99cc11", "#337755", "#225588"),
                           values = c(0, 0.1, 0.9, 1),
                           name = "P(class 1)") +
     xlim(-10, 10) +
