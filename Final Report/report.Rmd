@@ -1,5 +1,5 @@
 ---
-title: "STAT 557 Final Project Report"
+title: "Using Measurement Error for Good (e.g. curing corona): Gaussian Perturbation for Classification Stability and Uncertainty Quantification"
 author: "Sarah Shy, Jonathan Hehir"
 date: "Spring 2020"
 geometry: margin=1in
@@ -41,27 +41,6 @@ library(kableExtra)
 set.seed(3)
 theme_set(theme_bw(base_size = 10))
 ```
-
-<!--
-Game Plan (to be deeleeted):
-
-* Abstract
-* Intro:
-    + what is measurement error and why we should use it for uncertainty quantification
-    + what is gaussian perturbation and what we get from it?
-        - uncertainty quantification (important if we observe only one noisy instance, ideally measure many times)
-        - stability (important for reproducibility, trustworthiness, more bs like that)
-        - soft classification (for classifiers that don't have probabilities)
-* Formal Gaussian perturbation pipeline
-* Toy example for illustration
-* Astro data 
-* Discussion:
-    + Recap what we have
-* Limitations
-* Future Directions and Related Work
-* Bib
-
--->
 
 # Introduction
 
@@ -354,7 +333,7 @@ matrix(c(glm.instab, nb.instab, rf.instab), dimnames = list(c("Logit", "Naive Ba
 
 Notice the relationship between the interval widths and the stability score. Naive Bayes had the narrowest intervals and lowest instability score, indicating that our naive Bayes classifier is more stable compared with logistic regression and random forest. This makes sense since naive Bayes is, theoretically, a high bias and low variance classifier. The results of naive Bayes are robust to small perturbations in the training data.
 
-Logistic regression and random forest received a similar instability score, in which case we can choose the algorithm that simply performs better on new unseen data. However, we run into trouble when comparing their confidence intervals. All five of the performance metrics are bounded on the unit interval. Since random forest performs very well on this data, the confidence intervals exceed 1. For this reason, we truncated the confidence intervals at 1 in table \@ref(tab:astroCI). Therefore, the method we used for calculating confidence intervals may not make sense if the performance measures fall near 0 and 1. Further consideration is needed to better handle these confidence intervals. One potential solution is to assume a distribution for these quantities that is appropriately bounded and incorporate the estimated variance from the perturbed measurements.
+Logistic regression and random forest received a similar instability score, in which case we can choose the algorithm that simply performs better on new unseen data. However, we run into trouble when comparing their confidence intervals. All five of the performance metrics are bounded on the unit interval. Since random forest performs very well on this data, the confidence intervals exceed 1. For this reason, we truncated the confidence intervals at 1 in table \@ref(tab:astroCI). Therefore, the method we used for calculating confidence intervals may not make sense if the performance measures fall near 0 and 1. Further consideration is needed to better handle these confidence intervals as this is an obvious limitation. One potential solution is to assume a distribution for these quantities that is appropriately bounded and incorporate the estimated variance from the perturbed measurements.
 
 
 # Discussion
