@@ -227,7 +227,7 @@ Figure \@ref(fig:toyExampleBoxplots) shows the results of three different estima
 
 ```{r toyStability, cache = T, fig.cap = "Decision Boundaries and Softened Classifications via Perturbed Measurements"}
 
-# caching because all_predictions is hilariously slow
+# caching bes. all_predictions is hilariously slow
 preds <- all_predictions(sim_results_noisy, noisy)
 instab <- classifier_instab(preds)
 
