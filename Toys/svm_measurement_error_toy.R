@@ -37,6 +37,7 @@ noisify_data <- function(data, noise_rounds = 1) {
 plot_data <- function(data) {
   ggplot(data) +
     geom_point(aes(x = x1, y = x2, color = label, shape = label)) +
+    scale_color_manual(values = c("#225588", "#f1cc11")) +
     xlim(-10, 10) +
     ylim(-10, 10)
 }

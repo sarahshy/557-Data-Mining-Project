@@ -196,12 +196,12 @@ ggplot(bind_rows(
   tibble(observed = "C: GPP Estimate", accuracy = sim_results_noisy$accuracy + delta)
 )) +
   geom_boxplot(aes(x = observed, y = accuracy, fill = accuracy)) +
-  geom_hline(yintercept = svm_measured$accuracy, color = "#4499cc", linetype = "dotted") +
+  geom_hline(yintercept = svm_measured$accuracy, color = "#225588", linetype = "dashed") +
   xlab(" ") +
   ylab("Accuracy")
 ```
 
-Figure \@ref(fig:toyExampleBoxplots) shows the results of three different estimated distributions of classification accuracy. The leftmost distribution (A) is the estimate derived from the sets of repeated measurements, $\{\mathbf U^{(1)}_i\}, \dots, \{\mathbf U^{(B)}_i\}$. This is, in effect, the distribution we're trying to estimate. The middle distribution (B) is derived from the sets of perturbed measurements, $\{\mathbf W^{(1)}_i\}, \dots, \{\mathbf W^{(B)}_i\}$. The final distribution (C) is the result of shifting distribution B to be centered (in terms of mean) at our original observed accuracy of `r sprintf("%0.3f", svm_measured$accuracy)` (denoted by the dotted blue line). Of course, our ability to re-center such a distribution is dependent on our original point estimate. Ideally, this point estimate will not lie far from its expected value.
+Figure \@ref(fig:toyExampleBoxplots) shows the results of three different estimated distributions of classification accuracy. The leftmost distribution (A) is the estimate derived from the sets of repeated measurements, $\{\mathbf U^{(1)}_i\}, \dots, \{\mathbf U^{(B)}_i\}$. This is, in effect, the distribution we're trying to estimate. The middle distribution (B) is derived from the sets of perturbed measurements, $\{\mathbf W^{(1)}_i\}, \dots, \{\mathbf W^{(B)}_i\}$. The final distribution (C) is the result of shifting distribution B to be centered (in terms of mean) at our original observed accuracy of `r sprintf("%0.3f", svm_measured$accuracy)` (denoted by the dashed blue line). Of course, our ability to re-center such a distribution is dependent on our original point estimate. Ideally, this point estimate will not lie far from its expected value.
 
 
 ```{r toyStability, cache = T, fig.cap = "Decision Boundaries and Softened Classifications via Perturbed Measurements"}
