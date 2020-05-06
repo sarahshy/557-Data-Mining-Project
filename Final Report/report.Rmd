@@ -363,6 +363,8 @@ We have demonstrated how Gaussian perturbation can be used to measure algorithm 
 
 In the future, we would like to explore alternative methods for computing confidence intervals, as mentioned in the previous section. In addition, we are interested in exploring how this pipeline translates to a clustering task, where performance measures are relatively nebulous. Finally, we are interested in using this pipeline to potentially improve the performance of a classifier through ensemble learning methods.
 
+The authors would to thank Jia Li and Hyungsuk Tak for their fruitful discussions on the topic.
+
 ## Individual Contributions {-}
 
 - Literature Review: SS
