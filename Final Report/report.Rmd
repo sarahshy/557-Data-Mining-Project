@@ -1,5 +1,5 @@
 ---
-title: "Using Measurement Error for Good (e.g. curing corona): Gaussian Perturbation for Classification Stability and Uncertainty Quantification"
+title: "Gaussian Perturbation for Classification Stability and Uncertainty Quantification"
 author: "Sarah Shy, Jonathan Hehir"
 date: "Spring 2020"
 geometry: margin=1in
