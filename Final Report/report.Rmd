@@ -359,13 +359,11 @@ Logistic regression and random forest received a similar instability score, in w
 
 # Discussion
 
-We have demonstrated how Gaussian perturbation can be used to measure algorithm stability and quantify uncertainty in classification tasks. Utilizing known measurement error, these measures are effectively functions of the known error. Moreover, we discussed how this method can be used for algorithm selection and calculating class probabilities for each observation.
+We have demonstrated how Gaussian perturbation can be used to assess algorithm stability and quantify uncertainty in classification tasks in the presence of measurement error. In lieu of repeated measurements, which not generally feasible to collect, a single set of measurements can be repeatedly perturbed, and these perturbed measurements can be used to assess the robustness of any classifier to such error. Measures of classifier instability and estimated confidence intervals for classifier performance metrics like accuracy and AUC can be used to make informed decisions in algorithm selection.
 
-In the future, we would like to explore alternative methods for computing confidence intervals, as mentioned in the previous section. In addition, we are interested in exploring how this pipeline translates to a clustering task, where performance measures are relatively nebulous. Finally, we are interested in using this pipeline to potentially improve the performance of a classifier through ensemble learning methods.
+The results disussed here are not without limitations. Simple confidence interval estimation can prove tricky, for example, for metrics on bounded intervals. In the future, we would like to explore alternative methods for computing these confidence intervals. In addition, we are interested in exploring how this pipeline translates to a clustering task, where performance measures are more nebulous. Finally, we are interested in using this pipeline to potentially improve the performance of a classifier through ensemble learning methods.
 
-The authors would to thank Jia Li and Hyungsuk Tak for their fruitful discussions on the topic.
-
-## Individual Contributions {-}
+## Individual Contributions and Acknowledgements {-}
 
 - Literature Review: SS
 - Methods: SS, JH
@@ -373,6 +371,8 @@ The authors would to thank Jia Li and Hyungsuk Tak for their fruitful discussion
 - Astronomy Data Collection and Analysis: SS
 - Presentation Materials: SS, JH
 - Written Report: JH, SS
+
+The authors would to thank Jia Li and Hyungsuk Tak for their fruitful discussions on the topic.
 
 # Bibliography {-}
 
