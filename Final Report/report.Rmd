@@ -167,7 +167,7 @@ In contrast with the method just described in Section \@ref(motivation), the err
 
 Armed with these perturbed measurements, we can then apply any classifier or classifiers to each of the sets $\{ \mathbf W^{(1)}_i \}, \dots, \{\mathbf W^{(B)}_i \}$. Before doing so, we want to be careful to define a single partition of training and test observations, $\{1, \dots, n \} = I_\text{train} \cup I_\text{test}$. We will use the same training and test indices when evaluating the classification results on each of the perturbed datasets.
 
-As we will shortly see, the distribution of a given metric observed on the set $\{ \mathbf W_i \}$ will in general provide a biased estimate of the corresponding metric on $\{ \mathbf U_i \}$. Consequently, we will use the variance of the metric as observed over the $B$ sets $\{ \mathbf W^{(j)}_i \}$ to augment the point estimate we can derive from $\{ \mathbf U_i \}$ itself.
+As we will shortly see, the distribution of a given metric observed on a set $\{ \mathbf W_i \}$ will in general provide a biased estimate of the corresponding metric on $\{ \mathbf U_i \}$. Consequently, we will use the variance of the metric as observed over the $B$ sets $\{ \mathbf W^{(j)}_i \}$ to augment the point estimate we can derive from $\{ \mathbf U_i \}$ itself.
 
 We can also use the set of $B$ classification results to quantify the uncertainty of our individual predictions and the stability of the classification process overall. Consider the case of a binary classifier $f$ whose output for observations $i = 1, \dots, n$ takes values $f(\mathbf x) \in [0, 1]$, where $f(\mathbf x)$ represents the probability that the $\mathbf x$ belongs to class 1. Using our sets of perturbed measurements, we can use this classifier to obtain $B$ outputs for each of the $n$ observations, $f(\mathbf W^{(1)}_i), \dots, f( \mathbf W^{(B)}_i), \ i = 1, \dots, n$. In a stable algorithm, these values would be very similar for each observation $i$. In an unstable algorithm, there would be higher variance among these values.
 
@@ -256,11 +256,11 @@ train.set$class <- as.factor(train.set$class)
 test.set$class <- as.factor(test.set$class)
 ```
 
-Classification method have been important tools in Astronomy for decades, and continue to be essential in studying the night sky [@kurtz1988astronomical]. With ever-increasing volumes of publicly available data, Astronomy is an area of research that is particularly well-suited for studying big data algorithms.
+Classification methods have been important tools in astronomy for decades and continue to be essential in studying the night sky [@kurtz1988astronomical]. With ever-increasing volumes of publicly available data, astronomy is an area of research that is particularly well-suited for studying big data algorithms.
 
-We acquired our data from the Sloan Digital Sky Survey (SDSS) Data Release #12. The SDSS is one of the largest astronomical surveys, scanning over a third of the night sky and recording nearly 1 billion objects to date. Each row in the data represents a single point source in the sky and is classified as either a Galaxy, Star, or Quasar. The variables we use in our application are the point spread function (PSF) magnitudes at 5 wavelengths: ultraviolet ($u$), green ($g$), red ($r$), near infrared ($i$), and infrared ($z$). For each observation, we also have the known measurement error at each wavelength. We will use these errors as the standard deviation for our Gaussian perturbation. The features used for classification are the differences of the magnitudes, called colors: $u-g, g-r, r-i, and i-z$.
+We acquired our data from the Sloan Digital Sky Survey (SDSS) Data Release #12. The SDSS is one of the largest astronomical surveys, scanning over a third of the night sky and recording nearly 1 billion objects to date. Each row in the data represents a single point source in the sky and is classified as either a galaxy, star, or quasar. The variables we use in our application are the point spread function (PSF) magnitudes at 5 wavelengths: ultraviolet ($u$), green ($g$), red ($r$), near infrared ($i$), and infrared ($z$). For each observation, we also have the known measurement error at each wavelength. We will use these errors as the standard deviation for our Gaussian perturbation. The features used for classification are the differences of the magnitudes, called colors: $u-g$, $g-r$, $r-i$, and $i-z$.
 
-To clean the data, objects with missing values and incorrect measurements were removed. To simplify the problem, we exclude quasars in our example as they make up a very small portion of the data. Our final dataset contains 234,972 objects and 4 features.
+To clean the data, objects with missing values and incorrect measurements were removed. To simplify the problem, we exclude quasars in our example, as they make up a very small portion of the data. Our final dataset contains 234,972 objects and 4 features.
 
 The classification task is to predict the class (galaxy or star) of an object based on the observed color values.
 
@@ -290,11 +290,11 @@ ggplot(full.set.long, aes(x = value, fill = class)) +
 
 In Figure \@ref(fig:colorPlot), we show the marginal distributions of each feature, colored by the object class. The difference in distribution observed between the two classes indicates that there is class separation in the chosen feature space. We hope that classification algorithms can distinguish between the two classes using these features.
 
-## Astro Perturbation Results: Confidence intervals
+## Confidence Intervals
 
-We created 500 perturbed sets using the original dataset and the known measurement error on each observation. Note that this example differs from the toy example in that each observation has its own measurement error. The standard deviation used to perturb each observation varies.
+We created 500 perturbed sets using the original dataset and the known measurement error on each observation. Note that this example differs from the toy example in that each observation has its own measurement error. The variance used to perturb each observation varies.
 
-To illustrate how one might compare stability across multiple classification algorithms, we applied 3 algorithms: logistic regression, Naive Bayes, and Random Forest, which are all well-suited for binary classification. For each classifier, we calculated the 95% perturbation confidence interval for 5 commonly used performance metrics and the stability score as defined in Section 3. The resulting confidence interval for each classifier is presented in Table \@ref(tab:astroCI). The instability score for each classifier is also shown in Table \@ref(tab:astroStab). 
+To illustrate how one might compare stability across multiple classification algorithms, we applied 3 algorithms: logistic regression, naive Bayes, and random forest, which are all well-suited for binary classification. For each classifier, we calculated the 95% perturbation confidence interval for 5 commonly used performance metrics and the stability score as defined in Section 3. The resulting confidence interval for each classifier is presented in Table \@ref(tab:astroCI). The instability score for each classifier is also shown in Table \@ref(tab:astroStab). 
 
 ```{r, include = F}
 # reference GLM
@@ -354,9 +354,9 @@ matrix(c(glm.instab, nb.instab, rf.instab), dimnames = list(c("Logit", "Naive Ba
   kable("latex", booktabs = T, caption = "Stability of classifiers")
 ```
 
-Notice the relationship between the interval widths and the stability score. Naive Bayes had the narrowest intervals and lowest instability score, indicating that our Naive Bayes classifier is more stable compared with logistic regression and Random Forest. This makes sense since Naive Bayes is, theoretically, a high bias and low variance classifier. The results of Naive Bayes are robust to small perturbations in the training data.
+Notice the relationship between the interval widths and the stability score. Naive Bayes had the narrowest intervals and lowest instability score, indicating that our naive Bayes classifier is more stable compared with logistic regression and random forest. This makes sense since naive Bayes is, theoretically, a high bias and low variance classifier. The results of naive Bayes are robust to small perturbations in the training data.
 
-Logistic regression and random forest received a similar instability score, in which case we can choose the algorithm that simply performs better on new unseen data. However, we run into trouble when comparing their confidence intervals. All five of the performance metrics are bounded on the unit interval. Since random forest performs very well on this data, the confidence intervals exceed 1. For this reason, we truncated the confidence intervals at 1 in table \@ref(tab:astroCI). Therefore, the method we used for calculating confidence intervals may not make sense if the performance measures fall near 0 and 1. Further consideration is needed to better handle these confidence intervals. One potential solution is to choose a distribution other than Gaussian to calculate the intervals and somehow using the variation obtained from perturbing.
+Logistic regression and random forest received a similar instability score, in which case we can choose the algorithm that simply performs better on new unseen data. However, we run into trouble when comparing their confidence intervals. All five of the performance metrics are bounded on the unit interval. Since random forest performs very well on this data, the confidence intervals exceed 1. For this reason, we truncated the confidence intervals at 1 in table \@ref(tab:astroCI). Therefore, the method we used for calculating confidence intervals may not make sense if the performance measures fall near 0 and 1. Further consideration is needed to better handle these confidence intervals. One potential solution is to assume a distribution for these quantities that is appropriately bounded and incorporate the estimated variance from the perturbed measurements.
 
 
 # Discussion
