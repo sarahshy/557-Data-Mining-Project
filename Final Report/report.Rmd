@@ -375,16 +375,3 @@ The authors would to thank Jia Li and Hyungsuk Tak for their fruitful discussion
 - Written Report: JH, SS
 
 # Bibliography {-}
-
-<!-- pls don't delete yet. I'll get to it, but I need to store it somewhere for now -->
-
-<!--
-JH:
-
-I hope you don't mind, but I moved the reference into the bibliography.
-
-To add more references, just search in Google scholar, copy and paste the BibTeX entry (see https://libguides.usask.ca/c.php?g=218034&p=1445751) into sources.bib, and then reference the work in text here. For a parenthetical citation (e.g., "some fact (Whatever 2020)") , use `[@whatever2020lol]`. For a non-parenthetical citation (e.g., "according to Whatever 2020"), drop the square brackets.
-
-If you want works in sources.bib to appear in the bibliography even if not cited in the paper, add `nocite: "@*"` to the YAML header. Then everything will appear.
-
--->
