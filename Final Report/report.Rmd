@@ -6,6 +6,7 @@ geometry: margin=1in
 fontfamily: charter
 fontsize: 12pt
 bibliography: sources.bib
+nocite: "@*"
 csl: american-statistical-association.csl
 #classoption:
 #  - twocolumn
