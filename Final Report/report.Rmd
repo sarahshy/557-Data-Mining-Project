@@ -132,7 +132,7 @@ Consider the case of fitting a linear Support Vector Classifier to the set of me
 plot_data_with_decision_boundaries(noisy, svm_measured, alpha = 1)
 ```
 
-The discrepancy in accuracy is no surprise. Clearly, the presence of measurement error will affect our ability to discern between the two classes. But remember that our test set consists of measured values as we usually cannot observe the true values. Suppose we had tested with yet another set of measurements of the same underlying true values. Might we observe different accuracy? Similarly, we trained this model on measured values. Suppose we had trained the model on a different set of measurements. This would almost certainly shift our decision boundary.
+The discrepancy in accuracy is no surprise. Clearly, the presence of measurement error will affect our ability to discern between the two classes. Moreover, recall that we trained the model on *one instance* of measured values. Suppose we train the model on a different set of measurements. This would almost certainly shift our decision boundary. Similarly, our test set also consists of measured values rather than the true values. Suppose we predict on another set measurements of the same underlying true values.  Might we observe different accuracy?
 
 This raises two fundamental questions: How widely does our decision boundary shift under the influence of measurement error? How widely does the performance of our classifier (as measured by metrics like accuracy, sensitivity, specificity, etc.) vary in the presence of measurement error?
 
@@ -146,11 +146,11 @@ $$
 \end{aligned}
 $$
 
-From these $B$ sets of measurements, you can effectively derive Monte Carlo estimates of your preferred metrics, decision boundaries, etc. by simple observation of the distribution of the relevant quantities over the $B$ sets of measurements. Unfortunately, this method is not useful in a broader context, as we generally do not have the capacity to take large numbers of measurements on the same observations, and we do not know the true $\mathbf x_i$ values from which to simulate repeated measurements.
+From these $B$ sets of measurements, you can effectively derive Monte Carlo estimates of your preferred metrics and decision boundaries by simple observation of the distribution of the relevant quantities over the $B$ sets of measurements. Unfortunately, this method is not useful in a broader context, as we generally do not have the capacity to take large numbers of repeated measurements on the same observations, and we do not know the true $\mathbf x_i$ values from which to simulate repeated measurements.
 
 # Gaussian Perturbation Pipeline {#pipeline}
 
-The method we consider for the general case is the use of Gaussian perturbation on a single set of $n$ observed measurements, $\{\mathbf U_i \}_{i = 1}^n$. A diagram is given in Figure \@ref(pipelineDiagram). In particular we generate $B$ sets of $n$ perturbed measurements, $\{\mathbf W^{(1)}_i\}, \dots, \{ \mathbf W^{(B)}_i\}$ by repeatedly adding noise to these measurements independently sampled from a normal distribution with the known measurement error variance, $\varepsilon^{(j)}_i \sim \text{i.i.d. } \mathcal N(\mathbf 0, \tau^2)$: 
+The method we consider for the general case is the use of Gaussian perturbation on a single set of $n$ observed measurements, $\{\mathbf U_i \}_{i = 1}^n$. A diagram is given in Figure \@ref(pipelineDiagram). In particular we generate $B$ sets of $n$ perturbed measurements, $\{\mathbf W^{(1)}_i\}, \dots, \{ \mathbf W^{(B)}_i\}$ by repeatedly adding noise to these measurements independently sampled from a normal distribution with the known measurement error standard deviation, $\varepsilon^{(j)}_i \sim \text{i.i.d. } \mathcal N(\mathbf 0, \tau^2)$: 
 
 $$
 \begin{aligned}
@@ -162,7 +162,7 @@ $$
 
 In contrast with the method just described in Section \@ref(motivation), the error in the perturbed measurements here is being added to measurements that already incorporate measurement error---not to the (unknown) true values directly---hence the playful use of $\mathbf W$ (double U) to denote the perturbed measurements.
 
-![Gaussian perturbation pipeline for uncertainty quantification](../Presentation/pipeline.png){#pipelineDiagram}
+![Gaussian perturbation pipeline for stability and uncertainty quantification](../Presentation/pipeline.png){#pipelineDiagram}
 
 
 Armed with these perturbed measurements, we can then apply any classifier or classifiers to each of the sets $\{ \mathbf W^{(1)}_i \}, \dots, \{\mathbf W^{(B)}_i \}$. Before doing so, we want to be careful to define a single partition of training and test observations, $\{1, \dots, n \} = I_\text{train} \cup I_\text{test}$. We will use the same training and test indices when evaluating the classification results on each of the perturbed datasets.
@@ -258,7 +258,7 @@ test.set$class <- as.factor(test.set$class)
 
 Classification method have been important tools in Astronomy for decades, and continue to be essential in studying the night sky [@kurtz1988astronomical]. With ever-increasing volumes of publicly available data, Astronomy is an area of research that is particularly well-suited for studying big data algorithms.
 
-We acquired our data from the Sloan Digital Sky Survey (SDSS) Data Release #12. The SDSS is one of the largest astronomical surveys, scanning over a third of the night sky and recording nearly 1 billion objects to date. Each row in the data represents a single point source in the sky and is classified as either a Galaxy, Star, or Quasar. The variables we use in our application are the point spread function (PSF) magnitudes at 5 wavelengths: ultraviolet ($u$), green ($g$), red ($r$), near infrared ($i$), and infrared ($z$). For each observation, we also have the known measurement error at each wavelength. We will use these errors as the standard deviation for our Gaussian perturbation. The features used for classification are the differences of the magnitudes, called colors: $u-g, g-r, r-i, and i-z$.
+We acquired our data from the Sloan Digital Sky Survey (SDSS) Data Release #12. The SDSS is one of the largest astronomical surveys, scanning over a third of the night sky and recording nearly 1 billion objects to date. Each row in the data represents a single point source in the sky and is classified as either a Galaxy, Star, or Quasar. The variables we use in our application are the point spread function (PSF) magnitudes at 5 wavelengths: ultraviolet ($u$), green ($g$), red ($r$), near infrared ($i$), and infrared ($z$). For each observation, we also have the known measurement error at each wavelength. We will use these errors as the standard deviation for our Gaussian perturbation. The features used for classification are the differences of the magnitudes, called colors: $u-g, g-r, r-i, \text{and} i-z$.
 
 To clean the data, objects with missing values and incorrect measurements were removed. To simplify the problem, we exclude quasars in our example as they make up a very small portion of the data. Our final dataset contains 234,972 objects and 4 features.
 
@@ -361,18 +361,13 @@ Logistic regression and random forest received a similar instability score, in w
 
 # Discussion
 
-This is a paper.
+As you can see, our method lacks theoretical justification, but it is otherwise incredible. If you give it a try, I think you'll find this method is worthy of an A+.
 
-## Individual Contributions {-}
+## Author Contributions
 
-- Literature Review: SS
-- Methods: SS, JH
-- Toy Example Generation and Analysis: JH
-- Astronomy Data Collection and Analysis: SS
-- Presentation Materials: SS, JH
-- Written Report: JH, SS
+**TODO:** (I believe this is required.) Sarah did the astro stuff. Jonathan did the toy stuff. Everything else was shared.
 
-# Bibliography {-}
+# Bibliography
 
 <!-- pls don't delete yet. I'll get to it, but I need to store it somewhere for now -->
 
