@@ -1,14 +1,15 @@
 # 557-Data-Mining-Project
 Clustering with measurement error project. Jonathan Hehir + Sarah Shy.
 
-Data on Box
+## Abstract
 
-Coverage:
-- Introduction: quantify uncertainty using known measurement error
-- Application areas: astro, dp, earthquake idk
-- Simulation of like variation crap
-- Rundown of how this works, i.e. pipeline. Emphasize that you can use any classifier
-- Talk about how perturbation has been used before for uncertainty quantification (along w. bootstrap) both both classification + clustering, but perturbation has more advantages and also we can use our measurement error directly
-- Introduce astro data. train on blah, predict on blah. Use RF cuz why not
-- Show results from perturbing 500 times
-- Future work: clustering? ...?
+We consider the problem of classification in the presence of known measurement error. While the uncertainty on the classifier by measurement error could, in theory, be estimated by taking many repeated measurements of the observed objects, this is often not feasible or expensive in practice. In this report, we explore the possibility of assessing uncertainty in classification as well as robustness and stability of classification results in the presence of known measurement error by performing Gaussian perturbation on a single set of measurements.
+
+## Table of Contents
+
+Introduction
+Motivation
+Gaussian Perturbation Pipeline
+Application: Toy Example
+Application: Astronomy Data
+Discussion
