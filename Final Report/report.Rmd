@@ -271,9 +271,9 @@ In Figure \@ref(fig:colorPlot), we show the marginal distributions of each featu
 
 ## Confidence Intervals
 
-We created 500 perturbed sets using the original dataset and the known measurement error on each observation. Note that this example differs from the toy example in that each observation has its own measurement error. The variance used to perturb each observation varies.
+We created 500 perturbed sets using the original dataset and the known measurement error on each observation. Note that this example differs from the toy example in that each observation has its own measurement error.
 
-To illustrate how one might compare stability across multiple classification algorithms, we applied 3 algorithms: logistic regression, naive Bayes, and random forest, which are all well-suited for binary classification. For each classifier, we calculated the 95% perturbation confidence interval for 5 commonly used performance metrics and the stability score as defined in Section 3. The resulting confidence interval for each classifier is presented in Table \@ref(tab:astroCI). The instability score for each classifier is also shown in Table \@ref(tab:astroStab). 
+To illustrate how one might compare stability across multiple classification algorithms, we applied 3 algorithms: logistic regression, naive Bayes, and random forest, which are all well-suited for binary classification. For each classifier, we calculated the 95% perturbation confidence interval for 5 commonly used performance metrics and the stability score as defined in Section 3. The confidence intervals are based on the perturbed distribution of each measure, as is commonly done with bootrap confidence intervals. The 0.025 and 0.975 empirical quantiles are used to obtain the 95% confidence intervals. The resulting confidence interval for each classifier is presented in Table \@ref(tab:astroCI). The instability score for each classifier is also shown in Table \@ref(tab:astroStab). 
 
 <!--
 Our old way of calculating CI's. Used sd of perturbed values to build Gaussian CI. Use empirical quantiles as well.
@@ -370,14 +370,14 @@ matrix(c(glm.instab, nb.instab, rf.instab), dimnames = list(c("Logit", "Naive Ba
 
 Notice the relationship between the interval widths and the stability score. Naive Bayes had the narrowest intervals and lowest instability score, indicating that our naive Bayes classifier is more stable compared with logistic regression and random forest. This makes sense since naive Bayes is, theoretically, a high bias and low variance classifier. The results of naive Bayes are robust to small perturbations in the training data.
 
-Logistic regression and random forest received a similar instability score, in which case we can choose the algorithm that simply performs better on new unseen data. However, we run into trouble when comparing their confidence intervals. All five of the performance metrics are bounded on the unit interval. Since random forest performs very well on this data, the confidence intervals exceed 1. For this reason, we truncated the confidence intervals at 1 in table \@ref(tab:astroCI). Therefore, the method we used for calculating confidence intervals may not make sense if the performance measures fall near 0 and 1. Further consideration is needed to better handle these confidence intervals as this is an obvious limitation. One potential solution is to assume a distribution for these quantities that is appropriately bounded and incorporate the estimated variance from the perturbed measurements.
+Logistic regression and random forest received a similar instability score, in which case we can choose the algorithm that performs better on new, unseen data (generalization error). Based on the five performance metrics we chose, Random Forest performs better on new data compared with logistic regression. 
 
 
 # Discussion
 
 We have demonstrated how Gaussian perturbation can be used to assess algorithm stability and quantify uncertainty in classification tasks in the presence of measurement error. In lieu of repeated measurements, which are not generally feasible to collect, a single set of measurements can be repeatedly perturbed, and these perturbed measurements can be used to assess the robustness of any classifier to such error. Measures of classifier instability and estimated confidence intervals for classifier performance metrics like accuracy and AUC can be used to make informed decisions in algorithm selection.
 
-The results discussed here are not without limitations. Simple confidence interval estimation can prove tricky, for example, for metrics on bounded intervals. In the future, we would like to explore alternative methods for computing these confidence intervals. In addition, we are interested in exploring how this pipeline translates to a clustering task, where performance measures are more nebulous. Finally, we are interested in using this pipeline to potentially improve the performance of a classifier through ensemble learning methods.
+The results discussed here are not without limitations. In the future, we would like to generalize the instability score and performance uncertainty to multiclass classification problems. In addition, we are interested in exploring how this pipeline translates to a clustering task, where performance measures are more nebulous. Finally, we are interested in using this pipeline to potentially improve the performance of a classifier through ensemble learning methods.
 
 \newpage
 
