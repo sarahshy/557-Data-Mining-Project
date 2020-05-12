@@ -275,8 +275,11 @@ We created 500 perturbed sets using the original dataset and the known measureme
 
 To illustrate how one might compare stability across multiple classification algorithms, we applied 3 algorithms: logistic regression, naive Bayes, and random forest, which are all well-suited for binary classification. For each classifier, we calculated the 95% perturbation confidence interval for 5 commonly used performance metrics and the stability score as defined in Section 3. The resulting confidence interval for each classifier is presented in Table \@ref(tab:astroCI). The instability score for each classifier is also shown in Table \@ref(tab:astroStab). 
 
+<!--
+Our old way of calculating CI's. Used sd of perturbed values to build Gaussian CI. Use empirical quantiles as well.
+
 ```{r, include = F}
-# reference GLM
+# reference GLM, loads in glm.meas
 load("../Data/reference_glm_measures.RData")
 
 # reference NB
@@ -286,7 +289,7 @@ load("../Data/reference_nb_measures.RData")
 load("../Data/reference_rf_measures.RData")
 ```
 
-```{r astroCI, echo = F}
+```{r, echo = F}
 # perturbed glm
 p.glm.meas <- fread("../Data/glm_measures500.csv")
 p.glm.meas.sd <- apply(p.glm.meas, 2, sd)
@@ -317,6 +320,38 @@ nb.tbl <- sprintf("(%0.4f, %0.4f)", p.nb.lower, pmin(1, p.nb.upper)) %>%
 
 rf.tbl <- sprintf("(%0.4f, %0.4f)", p.rf.lower, pmin(1, p.rf.upper)) %>%
   matrix(nrow = length(rf.meas), dimnames = list(names(rf.meas), "95% CI (RF)"))
+
+cbind(glm.tbl, nb.tbl, rf.tbl) %>%
+  kable("latex", caption = "95\\% confidence intervals from Gaussian perturbation", booktabs = T) %>%
+  kable_styling(font_size = 10)
+```
+
+-->
+
+```{r astroCI, echo = F}
+# perturbed glm
+p.glm.meas <- fread("../Data/glm_measures500.csv")
+p.glm.lower <- apply(p.glm.meas, 2, FUN = function(x){ quantile(x, 0.025) })
+p.glm.upper <- apply(p.glm.meas, 2, FUN = function(x){ quantile(x, 0.975) })
+
+# perturbed nb
+p.nb.meas <- fread("../Data/nb_measures500.csv")
+p.nb.lower <- apply(p.nb.meas, 2, FUN = function(x){ quantile(x, 0.025) })
+p.nb.upper <- apply(p.nb.meas, 2, FUN = function(x){ quantile(x, 0.975) })
+
+# perturbed RF
+p.rf.meas <- fread("../Data/measures500.csv")
+p.rf.lower <- apply(p.rf.meas, 2, FUN = function(x){ quantile(x, 0.025) })
+p.rf.upper <- apply(p.rf.meas, 2, FUN = function(x){ quantile(x, 0.975) })
+
+glm.tbl <- sprintf("(%0.4f, %0.4f)", p.glm.lower, p.glm.upper) %>%
+  matrix(nrow = length(p.glm.meas), dimnames = list(names(p.glm.meas), "95% CI (Logit)"))
+
+nb.tbl <- sprintf("(%0.4f, %0.4f)", p.nb.lower, p.nb.upper) %>%
+  matrix(nrow = length(p.nb.meas), dimnames = list(names(p.nb.meas), "95% CI (NB)"))
+
+rf.tbl <- sprintf("(%0.4f, %0.4f)", p.rf.lower, p.rf.upper) %>%
+  matrix(nrow = length(p.rf.meas), dimnames = list(names(p.rf.meas), "95% CI (RF)"))
 
 cbind(glm.tbl, nb.tbl, rf.tbl) %>%
   kable("latex", caption = "95\\% confidence intervals from Gaussian perturbation", booktabs = T) %>%
