@@ -60,8 +60,8 @@ plot_data_with_error <- function(data) {
 plot_data_with_decision_boundaries <- function(data, results, alpha = 0.1) {
   # (used in presentation, keeping so as not to break it
   # even though we'll probably never knit that thing again)
-  intercepts <- -results$beta_2^-1 * results$beta_0
-  slopes <- -results$beta_2^-1 * results$beta_1
+  intercepts <- results$theta_0
+  slopes <- results$theta_1
   plot_data(data) +
     geom_abline(intercept = intercepts, slope = slopes, alpha = alpha, color = "#999999")
 }
@@ -115,13 +115,22 @@ svm_metrics <- function(data) {
   # my cutsie tuned polynomial svm
   # svm_result <- svm(label ~ ., data = data[train,], kernel = "poly", degree = 2, gamma = 1, coef0 = 0.1, cost = 10)
   coefs <- coef(svm_result)
+  
+  # there must be a better way...
+  centers <- svm_result$x.scale$`scaled:center`
+  scales <- svm_result$x.scale$`scaled:scale`
+  
   predicted <- predict(svm_result, newdata = data[test,])
   acc <- mean(predicted == data[test, ]$label)
   list(
     accuracy = acc,
+    # separating hyperplane relative to scaled data
     beta_0 = coefs[1],
     beta_1 = coefs[2],
-    beta_2 = coefs[3]
+    beta_2 = coefs[3],
+    # slope and intercept relative to original, unscaled data
+    theta_0 = scales[2] * (coefs[2]/coefs[3] - coefs[1]/coefs[3]) + centers[2],
+    theta_1 = - scales[2] / scales[1] * coefs[2] / coefs[3]
   )
 }
 
