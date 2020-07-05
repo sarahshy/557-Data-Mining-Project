@@ -60,8 +60,8 @@ plot_data_with_error <- function(data) {
 plot_data_with_decision_boundaries <- function(data, results, alpha = 0.1) {
   # (used in presentation, keeping so as not to break it
   # even though we'll probably never knit that thing again)
-  intercepts <- results$theta_0
-  slopes <- results$theta_1
+  intercepts <- -results$theta_2^-1 * results$theta_0
+  slopes <- -results$theta_2^-1 * results$theta_1
   plot_data(data) +
     geom_abline(intercept = intercepts, slope = slopes, alpha = alpha, color = "#999999")
 }
@@ -69,8 +69,8 @@ plot_data_with_decision_boundaries <- function(data, results, alpha = 0.1) {
 plot_data_with_decision_boundaries_and_soft_classifications <- function(data, results) {
   # I've always been fond of long function names.
   classified <- soft_classify_set(sim_results_noisy, noisy)
-  intercepts <- -results$beta_2^-1 * results$beta_0
-  slopes <- -results$beta_2^-1 * results$beta_1
+  intercepts <- -results$theta_2^-1 * results$theta_0
+  slopes <- -results$theta_2^-1 * results$theta_1
   ggplot(classified) +
     geom_abline(intercept = intercepts, slope = slopes, alpha = 0.05, color = "#777777") +
     geom_point(aes(x = x1, y = x2, color = p), size = 1) +
@@ -83,7 +83,7 @@ plot_data_with_decision_boundaries_and_soft_classifications <- function(data, re
 
 soft_classify <- function(results, x1, x2) {
   results %>%
-    transmute(fitted_sign = pmax(0, sign(beta_0 + beta_1 * x1 + beta_2 * x2))) %>%
+    transmute(fitted_sign = pmax(0, sign(theta_0 + theta_1 * x1 + theta_2 * x2))) %>%
     summarize(p = mean(fitted_sign)) %>%
     as_vector() %>%
     unname()
@@ -102,7 +102,7 @@ all_predictions <- function(results, data) {
   preds <- matrix(NA, nrow = n, ncol = B)
   for(i in 1:n) {
     for(j in 1:B) {
-      preds[i,j] <- pmax(0, sign(results$beta_0[j] + results$beta_1[j] * data$x1[i] + results$beta_2[j] * data$x2[i]))
+      preds[i,j] <- pmax(0, sign(results$theta_0[j] + results$theta_1[j] * data$x1[i] + results$theta_2[j] * data$x2[i]))
     }
   }
   preds
@@ -116,21 +116,40 @@ svm_metrics <- function(data) {
   # svm_result <- svm(label ~ ., data = data[train,], kernel = "poly", degree = 2, gamma = 1, coef0 = 0.1, cost = 10)
   coefs <- coef(svm_result)
   
-  # there must be a better way...
+  # Internally, e1071 centers and scales the data, then performs analysis
+  # on this scaled data.
+  # `coef(svm_result)` therefore gives us the separating hyperplane relative
+  # to the scaled data, i.e.,:
+  # beta_0 + beta_1 * x1 + beta_2 * x2 = 0
+  # where x1 = (x - center_x)/scale_x, x2 = (y - center_x)/scale_y
+  # To put things in terms of the original (unscaled) x and y, we have some ugly
+  # work to do. First, we have to extract the centers and scales from `svm_result`:
+  # (This doesn't seem like it could possibly be the best way to do it, but I don't
+  # see any exposed function that gives this information back.)
   centers <- svm_result$x.scale$`scaled:center`
   scales <- svm_result$x.scale$`scaled:scale`
   
+  # Then do some algebra to get a hyperplane in terms of x and y:
+  # beta_0 + beta_1 * x1 + beta_2 * x2 = 0
+  #   ==>
+  # (beta_0 - beta_1/scale_x*mean_x - beta_2/scale_y*mean_y)
+  #   + beta_1/scale_x * x
+  #   + beta_2/scale_y * y
+  #   = 0
+  
   predicted <- predict(svm_result, newdata = data[test,])
   acc <- mean(predicted == data[test, ]$label)
+  
   list(
     accuracy = acc,
     # separating hyperplane relative to scaled data
     beta_0 = coefs[1],
     beta_1 = coefs[2],
     beta_2 = coefs[3],
-    # slope and intercept relative to original, unscaled data
-    theta_0 = scales[2] * (coefs[2]/coefs[3] - coefs[1]/coefs[3]) + centers[2],
-    theta_1 = - scales[2] / scales[1] * coefs[2] / coefs[3]
+    # separating hyperplane relative to original (unscaled) data
+    theta_0 = coefs[1] - coefs[2]/scales[1]*centers[1] - coefs[3]/scales[2]*centers[2],
+    theta_1 = coefs[2]/scales[1],
+    theta_2 = coefs[3]/scales[2]
   )
 }
 
