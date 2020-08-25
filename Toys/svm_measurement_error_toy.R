@@ -23,13 +23,22 @@ make_base_data <- function() {
   as_tibble(data) %>% mutate(label = as.factor(label))
 }
 
-noisify_data <- function(data, noise_rounds = 1) {
+noisify_data <- function(data, noise_rounds = 1, hetero = FALSE) {
   if (noise_rounds < 1) return(data) # no noise needed!
   
   data_noisy <- data
-  for(i in 1:noise_rounds) {
-    noise <- rmvnorm(nrow(data), c(0, 0), sigma_noise)
-    data_noisy[,c("x1", "x2")] <- data_noisy[,c("x1", "x2")] + noise
+  for(i in 1:noise_rounds){
+    if(hetero == FALSE){ # homoscedastic error
+      noise <- rmvnorm(n, c(0, 0), sigma_noise)
+      data_noisy[,c("x1", "x2")] <- data_noisy[,c("x1", "x2")] + noise
+      print(head(data_noisy))
+    } else { # heteroscedastic error
+      # sigma_noise <- matrix(c(1, 0, 0, 3), nrow = 2)
+      noise_x1 <- rnorm(n, 0, sigma_x1)
+      noise_x2 <- rnorm(n, 0, sigma_x2)
+      noise <- cbind(noise_x1, noise_x2)
+      data_noisy[,c("x1", "x2")] <- data_noisy[,c("x1", "x2")] + noise
+    }
   }
   data_noisy
 }
@@ -108,7 +117,7 @@ all_predictions <- function(results, data) {
   preds
 }
 
-svm_metrics <- function(data) {
+svm_metrics <- function(data, cost = 1, gamma = 1/n) {
   # uses global train, test
   svm_result <- svm(label ~ ., data = data[train,], kernel = "linear", cost = 0.18)
   
@@ -153,7 +162,7 @@ svm_metrics <- function(data) {
   )
 }
 
-run_simulations <- function(base_data, m, noise_rounds) {
+run_simulations <- function(base_data, m = 500, noise_rounds) { # m is number of perturbations
   metrics <- NULL
   for(i in 1:m) {
     if(is.function(base_data)) {
